@@ -34,6 +34,10 @@ public class object_03 : MonoBehaviour
         {
             game_manager.FinalObjectFrame[2] = 2;
         }
+        else
+        {
+            game_manager.FinalObjectFrame[2] = -1;
+        }
 
         if (FrameN > 0)
         {
@@ -41,9 +45,17 @@ public class object_03 : MonoBehaviour
         }
     }
 
+    private void OnDestroy()
+    {
+        game_manager.FinalObjectFrame[2] = -1;
+    }
 
     void Update()
     {
-
+        if (game_manager.HeroDirection == game_manager.FinalObjectFrame[2])
+        {
+            game_manager.GameScore++;
+            Destroy(this);
+        }
     }
 }

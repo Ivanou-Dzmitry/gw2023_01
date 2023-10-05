@@ -10,8 +10,9 @@ public class object_01 : MonoBehaviour
     void Start()
     {
         ObjectFrames = GetComponentsInChildren<SpriteRenderer>();
-        
-        hideAllObj01();
+
+        foreach (SpriteRenderer sprite in ObjectFrames)
+            sprite.gameObject.SetActive(false);
 
         InvokeRepeating("objectRender", 0f, 1f);
 
@@ -20,11 +21,6 @@ public class object_01 : MonoBehaviour
         Destroy(gameObject, 6f);
     }
 
-    public void hideAllObj01()
-    {
-        foreach (SpriteRenderer sprite in ObjectFrames)
-            sprite.gameObject.SetActive(false);
-    }
 
     void objectRender()
     {
@@ -36,17 +32,31 @@ public class object_01 : MonoBehaviour
         {
             game_manager.FinalObjectFrame[0] = 0;
         }
+        else
+        {
+            game_manager.FinalObjectFrame[0] = -1;
+        }
 
         if (FrameN > 0)
         {
             ObjectFrames[FrameN-1].gameObject.SetActive(false);
         }
-
     }
+
+    private void OnDestroy()
+    {
+        game_manager.FinalObjectFrame[0] = -1;
+    }
+
 
     void Update()
     {
-        
+        if (game_manager.HeroDirection == game_manager.FinalObjectFrame[0])
+        {
+            game_manager.GameScore++;
+            Destroy(this);
+            
+        }
     }
 
 }

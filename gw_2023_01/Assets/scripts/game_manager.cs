@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,16 +23,18 @@ public class game_manager : MonoBehaviour
 
     private int TotalGameTime, RandomObject, SecondActionTime, ThirdActionTime, InstObjCount;
 
+    private float GameTime;
+
     public static int HeroDirection;
     //public static int FinalObjectFrame;
-    private int GameScore = 0;
+    public static int GameScore = 0;
 
     private int GameObjectsCount = 4; //game objects in current game
 
     private List<int> objectsOrder = new List<int>(); //for random order
     public static List<int> FinalObjectFrame = new List<int>();
 
-    private List<string> Object01Stack = new List<string>();
+    public static List<string> Object01Stack = new List<string>();
     private List<string> Object02Stack = new List<string>();
     private List<string> Object03Stack = new List<string>();
     private List<string> Object04Stack = new List<string>();
@@ -39,17 +42,16 @@ public class game_manager : MonoBehaviour
     void Start()
     {
         //for random order
-        randomCycle();
+        randomGameObjOrder();
+
+        //idle sate of game
         IdleState = true;
 
-        counterText.text = "0";
-        HeroDirection = 0;
+        counterText.text = "0"; //start count
+
+        HeroDirection = 2; // bottom right
 
         Application.targetFrameRate = 15;
-
-        InvokeRepeating("GameLogic", 0f, 1f);
-        InvokeRepeating("SecondActionTimer", 0f, 2f);
-        InvokeRepeating("ThirdActionTimer", 0f, 4f);
 
         TotalGameTime = 0;
 
@@ -60,8 +62,8 @@ public class game_manager : MonoBehaviour
     }
 
 
-
-    void randomCycle()
+    //choose random order of game objects
+    void randomGameObjOrder()
     {
         int number;
         for (int i = 0; i < GameObjectsCount; i++)
@@ -74,24 +76,11 @@ public class game_manager : MonoBehaviour
         }
     }
 
-    void SecondActionTimer()
-    {
-        SecondActionTime = TotalGameTime + 2;
-    }
-
-    void ThirdActionTimer()
-    {
-        ThirdActionTime = TotalGameTime + 4;
-    }
-
 
     void GameLogic()
     {
-        //Debug.Log(TotalGameTime +"/"+ SecondActionTime);
-
-        TotalGameTime++;
-
-        if (TotalGameTime == 2)
+  
+        if (TotalGameTime == 1)
         {
             objectForRender(objectsOrder[0]);
         }
@@ -111,21 +100,12 @@ public class game_manager : MonoBehaviour
             objectForRender(objectsOrder[3]);
         }
 
-        if (TotalGameTime > 28 && TotalGameTime == SecondActionTime)
+        if (TotalGameTime > 28 && TotalGameTime%2 == 0)
         {
             RandomObject = UnityEngine.Random.Range(1, 5);
             objectForRender(RandomObject);
             //Debug.Log("here: " + TotalGameTime + "/" + SecondActionTime);
         }
-
-        ScoreCounter();
-
-        for (int i = 0; i < 4; i++)
-        {
-            FinalObjectFrame.Insert(i, -1);
-        }
-
-        SpeedController();
 
         /*
         if (TotalGameTime > 30 && TotalGameTime == ThirdActionTime)
@@ -144,8 +124,6 @@ public class game_manager : MonoBehaviour
 
         switch (Object)
         {
-            
-
             case 1:
                 string TempName;
 
@@ -193,93 +171,43 @@ public class game_manager : MonoBehaviour
     
     void Update()
     {
+        
+        //listen kbd
         ButtonInput();
 
-        //Debug.Log(HeroDirection +"/"+ FinalObjectFrame[0]);
+        //check speed
+        SpeedController();
 
-        //ScoreCounter();
+        if (GameState)
+        {
+            GameTime = GameTime + Time.unscaledDeltaTime;
+
+            ScoreCounter();
+
+            if (GameTime > 1f)
+            {
+                //Debug.Log("TotalGameTime: " + TotalGameTime);
+                //Debug.Log("GameTime: " + GameTime);
+
+                Debug.Log(FinalObjectFrame[0] + " : "+ FinalObjectFrame[1] + " : " + FinalObjectFrame[2] + " : " + FinalObjectFrame[3]);
+                
+                GameLogic();
+                TotalGameTime++;
+                GameTime = 0;
+            }
+
+            
+        }
+        
+
+        //Debug.Log(HeroDirection +"/"+ FinalObjectFrame[0]);
 
     }
 
     void ScoreCounter()
     {
-        counterText.text = TotalGameTime + " S:" + GameScore.ToString() + " F:" + InstObjCount.ToString();
-        
-        //top left
-        if (HeroDirection == FinalObjectFrame[0])
-        {
-            GameScore++;
-
-            if (Object01Stack.Count > 0)
-            {
-
-                if (GameObject.Find(Object01Stack[0]) != null)
-                {
-                    GameObject GO2Del = GameObject.Find(Object01Stack[0]);
-                    Destroy(GO2Del);
-                    Debug.Log(Object01Stack[0] + " was Destroyed!");
-                    Object01Stack.RemoveAt(0);
-                }
-            }
-
-            
-
-        }
-
-        //bottom left
-        if (HeroDirection == FinalObjectFrame[1])
-        {
-            GameScore++;
-
-            if (Object01Stack.Count > 0)
-            {
-
-                if (GameObject.Find(Object02Stack[0]) != null)
-                {
-                    GameObject GO2Del = GameObject.Find(Object02Stack[0]);
-                    Destroy(GO2Del);
-                    Debug.Log(Object02Stack[0] + " was Destroyed!");
-                    Object02Stack.RemoveAt(0);
-                }
-            }
-        }
-
-        //bottom right
-        if (HeroDirection == FinalObjectFrame[2])
-        {
-            GameScore++;
-
-            if (Object03Stack.Count > 0)
-            {
-
-                if (GameObject.Find(Object03Stack[0]) != null)
-                {
-                    GameObject GO2Del = GameObject.Find(Object03Stack[0]);
-                    Destroy(GO2Del);
-                    Debug.Log(Object03Stack[0] + " was Destroyed!");
-                    Object03Stack.RemoveAt(0);
-                }
-            }
-        }
-
-        //top right
-        if (HeroDirection == FinalObjectFrame[3])
-        {
-            GameScore++;
-
-            if (Object04Stack.Count > 0)
-            {
-
-                if (GameObject.Find(Object04Stack[0]) != null)
-                {
-                    GameObject GO2Del = GameObject.Find(Object04Stack[0]);
-                    Destroy(GO2Del);
-                    Debug.Log(Object04Stack[0] + " was Destroyed!");
-                    Object04Stack.RemoveAt(0);
-                }
-            }
-        }
-
+        //TotalGameTime + 
+        counterText.text = GameScore.ToString() + "/ " + InstObjCount.ToString();
 
     }
 
@@ -304,6 +232,20 @@ public class game_manager : MonoBehaviour
         {
             HeroDirection = 3; //right top
         }
+
+        if (Input.GetKeyDown(KeyCode.Return))
+        {
+            GameState = true; 
+            IdleState = false;
+            Debug.Log("Game Start");
+        }
+
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            PauseState = true; 
+            GameState = false;
+            Debug.Log("Game Paused");
+        }
     }
 
     void SpeedController()
@@ -312,9 +254,9 @@ public class game_manager : MonoBehaviour
         if (InstObjCount < 25)
         {
             Time.timeScale = 1.0f;
-            Debug.Log("Speed 1");
+            //Debug.Log("Speed 1");
         }
-
+        /*
         if (InstObjCount > 25 && InstObjCount < 50)
         {
             Time.timeScale = 1.25f;
@@ -332,6 +274,6 @@ public class game_manager : MonoBehaviour
             Time.timeScale = 1.75f;
             Debug.Log("Speed 4");
         }
-
+        */
     }
 }

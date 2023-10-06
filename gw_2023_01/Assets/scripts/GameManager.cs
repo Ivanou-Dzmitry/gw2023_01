@@ -91,7 +91,7 @@ public class GameManager : MonoBehaviour
 
     void GameLogic()
     {
-        Debug.Log(TotalGameTime);
+        //Debug.Log(TotalGameTime);
 
         if (TotalGameTime == 1)
         {
@@ -113,7 +113,8 @@ public class GameManager : MonoBehaviour
             objectForRender(objectsOrder[3]);
         }
 
-        if (TotalGameTime > 23 && TotalGameTime%2 == 0)
+        //random every odd sec
+        if (TotalGameTime > 22 && TotalGameTime%2 == 0)
         {
             RandomObject = UnityEngine.Random.Range(1, 5);
             objectForRender(RandomObject);
@@ -241,8 +242,6 @@ public class GameManager : MonoBehaviour
                 default:
                     break;
             }
-
-
 
 
             if (LostScore == 3)

@@ -2,13 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class hero_01 : MonoBehaviour
+public class HeroController : MonoBehaviour
 {
     private Component[] ObjectFrames;
  
     void Start()
     {
         ObjectFrames = GetComponentsInChildren<SpriteRenderer>();
+
         hideAllHero01();
     }
 
@@ -28,6 +29,7 @@ public class hero_01 : MonoBehaviour
     void Update()
     {
         hideAllHero01();
+
         if (GameManager.GameState)
         {
             objectRender(GameManager.HeroDirection);

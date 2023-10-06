@@ -1,58 +1,54 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class object_02 : MonoBehaviour
+public class ObjectController : MonoBehaviour
 {
     private Component[] ObjectFrames;
     private int FrameN;
     private float ObjectTime;
 
+    //direction of player for win
+    [SerializeField] private int Direction;
+
     void Start()
     {
         ObjectFrames = GetComponentsInChildren<SpriteRenderer>();
-        hideAllObj02();
 
-        FrameN = 0;
-    }
-
-    public void hideAllObj02()
-    {
         foreach (SpriteRenderer sprite in ObjectFrames)
             sprite.gameObject.SetActive(false);
+
+        this.FrameN = 0;
     }
+
 
     IEnumerator objectRender()
     {
 
         ObjectFrames[this.FrameN].gameObject.SetActive(true);
 
-        if (this.FrameN == 4 && GameManager.HeroDirection == 1)
+        //try to add score
+        if (this.FrameN  == 4 && GameManager.HeroDirection == this.Direction)
         {
-
             GameManager.ObjectCollected = true;
             GameManager.ObjNameToDelete = this.name;
-            //Debug.Log(this.name + " is 4");
         }
 
+        //lost object
         if (this.FrameN == 5)
         {
             GameManager.ObjectCollected = false;
             GameManager.ObjNameToDelete = this.name;
         }
 
+        //turn on previus
         if (this.FrameN > 0)
         {
-            ObjectFrames[this.FrameN - 1].gameObject.SetActive(false);
+            ObjectFrames[this.FrameN -1].gameObject.SetActive(false);
         }
 
         yield return null;
     }
 
-    private void OnDestroy()
-    {
-       //
-    }
 
     void Update()
     {
@@ -69,4 +65,5 @@ public class object_02 : MonoBehaviour
             }
         }
     }
+
 }

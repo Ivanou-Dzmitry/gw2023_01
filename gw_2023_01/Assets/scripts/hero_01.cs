@@ -28,7 +28,10 @@ public class hero_01 : MonoBehaviour
     void Update()
     {
         hideAllHero01();
-
-        objectRender(game_manager.HeroDirection);
+        if (GameManager.GameState)
+        {
+            objectRender(GameManager.HeroDirection);
+        }
+            
     }
 }

@@ -8,7 +8,7 @@ using UnityEditor;
 using UnityEngine;
 using static TMPro.SpriteAssetUtilities.TexturePacker_JsonArray;
 
-public class game_manager : MonoBehaviour
+public class GameManager : MonoBehaviour
 {
     public GameObject gameObj01;
     public GameObject gameObj02;
@@ -16,28 +16,30 @@ public class game_manager : MonoBehaviour
     public GameObject gameObj04;
 
     public TMP_Text counterText;
+    public TMP_Text InfoText;
 
     GameObject TempGO01, TempGO02, TempGO03, TempGO04;
+    GameObject MissIcon01, MissIcon02, MissIcon03;
 
-    private bool IdleState, GameState, LooseState, PauseState;
+    public static bool IdleState, GameState, LooseState, PauseState, EndGame;
 
-    private int TotalGameTime, RandomObject, SecondActionTime, ThirdActionTime, InstObjCount;
+    private int TotalGameTime, RandomObject, InstObjCount;
 
     private float GameTime;
 
+    //player direction
     public static int HeroDirection;
-    //public static int FinalObjectFrame;
-    public static int GameScore = 0;
+    
+    //Score
+    private int GameScore;
+    private int LostScore;
+    public static bool ObjectCollected;
 
-    private int GameObjectsCount = 4; //game objects in current game
+    private readonly int GameObjectsCount = 4; //game objects in current game
 
-    private List<int> objectsOrder = new List<int>(); //for random order
-    public static List<int> FinalObjectFrame = new List<int>();
+    private readonly List<int> objectsOrder = new List<int>(); //for random order
 
-    public static List<string> Object01Stack = new List<string>();
-    private List<string> Object02Stack = new List<string>();
-    private List<string> Object03Stack = new List<string>();
-    private List<string> Object04Stack = new List<string>();
+    public static string ObjNameToDelete;
 
     void Start()
     {
@@ -46,6 +48,7 @@ public class game_manager : MonoBehaviour
 
         //idle sate of game
         IdleState = true;
+        EndGame = false;
 
         counterText.text = "0"; //start count
 
@@ -54,12 +57,21 @@ public class game_manager : MonoBehaviour
         Application.targetFrameRate = 15;
 
         TotalGameTime = 0;
+        GameScore = 0;
+        LostScore = 0;
 
-        for (int i = 0; i < 4; i++)
-        {
-            FinalObjectFrame.Insert(i, -1);
-        }
+        MissIcon01 = GameObject.Find("lost_fish_1");
+        MissIcon01.SetActive(false);
+
+        MissIcon02 = GameObject.Find("lost_fish_2");
+        MissIcon02.SetActive(false);
+
+        MissIcon03 = GameObject.Find("lost_fish_3");
+        MissIcon03.SetActive(false);
+
     }
+
+
 
 
     //choose random order of game objects
@@ -79,41 +91,33 @@ public class game_manager : MonoBehaviour
 
     void GameLogic()
     {
-  
+        Debug.Log(TotalGameTime);
+
         if (TotalGameTime == 1)
         {
             objectForRender(objectsOrder[0]);
         }
 
-        if (TotalGameTime == 9)
+        if (TotalGameTime == 7)
         {
             objectForRender(objectsOrder[1]);
         }
 
-        if (TotalGameTime == 16)
+        if (TotalGameTime == 12)
         {
             objectForRender(objectsOrder[2]);
         }
 
-        if (TotalGameTime == 23)
+        if (TotalGameTime == 17)
         {
             objectForRender(objectsOrder[3]);
         }
 
-        if (TotalGameTime > 28 && TotalGameTime%2 == 0)
+        if (TotalGameTime > 23 && TotalGameTime%2 == 0)
         {
             RandomObject = UnityEngine.Random.Range(1, 5);
             objectForRender(RandomObject);
-            //Debug.Log("here: " + TotalGameTime + "/" + SecondActionTime);
         }
-
-        /*
-        if (TotalGameTime > 30 && TotalGameTime == ThirdActionTime)
-        {
-            RandomObject = UnityEngine.Random.Range(1, 5);
-            objectForRender(RandomObject);
-            //Debug.Log(ThirdActionTime);
-        }*/
 
     }
 
@@ -131,7 +135,6 @@ public class game_manager : MonoBehaviour
 
                 TempGO01 = Instantiate(gameObj01);     
                 TempGO01.name = TempName;
-                Object01Stack.Add(TempName);
 
                 //Debug.Log(TempName + " was created!");
 
@@ -143,7 +146,6 @@ public class game_manager : MonoBehaviour
                 TempGO02 = Instantiate(gameObj02);
                 TempGO02.name = TempName;
 
-                Object02Stack.Add(TempName);
                 break;
             case 3:
                 
@@ -151,7 +153,6 @@ public class game_manager : MonoBehaviour
 
                 TempGO03 = Instantiate(gameObj03);
                 TempGO03.name = TempName;
-                Object03Stack.Add(TempName);
 
                 break;
             case 4:
@@ -160,7 +161,6 @@ public class game_manager : MonoBehaviour
 
                 TempGO04 = Instantiate(gameObj04);
                 TempGO04.name = TempName;
-                Object04Stack.Add(TempName);
 
                 break;
             default:
@@ -182,6 +182,8 @@ public class game_manager : MonoBehaviour
         {
             GameTime = GameTime + Time.unscaledDeltaTime;
 
+            InfoText.gameObject.SetActive(false);
+
             ScoreCounter();
 
             if (GameTime > 1f)
@@ -189,14 +191,19 @@ public class game_manager : MonoBehaviour
                 //Debug.Log("TotalGameTime: " + TotalGameTime);
                 //Debug.Log("GameTime: " + GameTime);
 
-                Debug.Log(FinalObjectFrame[0] + " : "+ FinalObjectFrame[1] + " : " + FinalObjectFrame[2] + " : " + FinalObjectFrame[3]);
-                
                 GameLogic();
+
                 TotalGameTime++;
                 GameTime = 0;
             }
 
-            
+        }
+
+        if (EndGame)
+        {
+            GameState = false;
+            InfoText.text = "Game Over!";
+            InfoText.gameObject.SetActive(true);
         }
         
 
@@ -204,47 +211,105 @@ public class game_manager : MonoBehaviour
 
     }
 
-    void ScoreCounter()
+    public void ScoreCounter()
     {
-        //TotalGameTime + 
-        counterText.text = GameScore.ToString() + "/ " + InstObjCount.ToString();
+        //TotalGameTime +   + "/" + InstObjCount.ToString()
+        counterText.text = GameScore.ToString();
+
+        if (ObjNameToDelete != null)
+        {
+            if (ObjectCollected)
+            {
+                GameScore++;
+            }
+            else
+            {
+                LostScore++;
+            }
+
+            switch (LostScore)
+            {
+                case 1:
+                    MissIcon01.SetActive(true);
+                    break;
+                case 2:
+                    MissIcon02.SetActive(true);
+                    break;
+                case 3:
+                    MissIcon03.SetActive(true);
+                    break;
+                default:
+                    break;
+            }
+
+
+
+
+            if (LostScore == 3)
+            {
+                EndGame = true;
+            }
+
+            //Debug.Log("ObjNameToDelete is " + ObjNameToDelete);
+            GameObject toDestroy = GameObject.Find(ObjNameToDelete);
+            toDestroy.gameObject.SetActive(false);
+            Destroy(toDestroy);
+            ObjNameToDelete =null;
+        }
+        
 
     }
 
     void ButtonInput()
     {
-        if (Input.GetKeyDown(KeyCode.Q))
+        if (GameState)
         {
-            HeroDirection = 0; //left top
+            if (Input.GetKeyDown(KeyCode.Q))
+            {
+                HeroDirection = 0; //left top
+            }
+
+            if (Input.GetKeyDown(KeyCode.A))
+            {
+                HeroDirection = 1; //left bottom
+            }
+
+            if (Input.GetKeyDown(KeyCode.S))
+            {
+                HeroDirection = 2; //right bottom
+            }
+
+            if (Input.GetKeyDown(KeyCode.W))
+            {
+                HeroDirection = 3; //right top
+            }
         }
 
-        if (Input.GetKeyDown(KeyCode.A))
-        {
-            HeroDirection = 1; //left bottom
-        }
-
-        if (Input.GetKeyDown(KeyCode.S))
-        {
-            HeroDirection = 2; //right bottom
-        }
-
-        if (Input.GetKeyDown(KeyCode.W))
-        {
-            HeroDirection = 3; //right top
-        }
 
         if (Input.GetKeyDown(KeyCode.Return))
         {
             GameState = true; 
             IdleState = false;
-            Debug.Log("Game Start");
+            PauseState = false;
+            //Debug.Log("Game Start");
         }
 
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            PauseState = true; 
-            GameState = false;
-            Debug.Log("Game Paused");
+            if (GameState)
+            {
+                PauseState = true;
+                GameState = false;
+            }
+            else
+            {
+                PauseState = false;
+                GameState = true;
+            }
+
+            InfoText.gameObject.SetActive(true);
+            InfoText.text = "Pause";
+            //Debug.Log("Game Paused");
         }
     }
 

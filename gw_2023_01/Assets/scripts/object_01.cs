@@ -1,11 +1,11 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class object_01 : MonoBehaviour
 {
     private Component[] ObjectFrames;
     private int FrameN;
+    private float ObjectTime;
 
     void Start()
     {
@@ -14,48 +14,53 @@ public class object_01 : MonoBehaviour
         foreach (SpriteRenderer sprite in ObjectFrames)
             sprite.gameObject.SetActive(false);
 
-        InvokeRepeating("objectRender", 0f, 1f);
-
-        FrameN = -1;
-
-        Destroy(gameObject, 6f);
+        this.FrameN = 0;
     }
 
 
-    void objectRender()
+    IEnumerator objectRender()
     {
-        FrameN++;
 
-        ObjectFrames[FrameN].gameObject.SetActive(true);
+        ObjectFrames[this.FrameN].gameObject.SetActive(true);
 
-        if (FrameN  == 4)
+        //try to add score
+        if (this.FrameN  == 4 && GameManager.HeroDirection == 0)
         {
-            game_manager.FinalObjectFrame[0] = 0;
-        }
-        else
-        {
-            game_manager.FinalObjectFrame[0] = -1;
+            GameManager.ObjectCollected = true;
+            GameManager.ObjNameToDelete = this.name;
+            //Debug.Log(this.name + " is 4");
         }
 
-        if (FrameN > 0)
+        //lost object
+        if (this.FrameN == 5)
         {
-            ObjectFrames[FrameN-1].gameObject.SetActive(false);
+            GameManager.ObjectCollected = false;
+            GameManager.ObjNameToDelete = this.name;
         }
-    }
 
-    private void OnDestroy()
-    {
-        game_manager.FinalObjectFrame[0] = -1;
+        //turn on previus
+        if (this.FrameN > 0)
+        {
+            ObjectFrames[this.FrameN -1].gameObject.SetActive(false);
+        }
+
+        yield return null;
     }
 
 
     void Update()
     {
-        if (game_manager.HeroDirection == game_manager.FinalObjectFrame[0])
+        if (GameManager.GameState)
         {
-            game_manager.GameScore++;
-            Destroy(this);
-            
+            this.ObjectTime = this.ObjectTime + Time.unscaledDeltaTime;
+
+            StartCoroutine(objectRender());
+
+            if (this.ObjectTime > 1f)
+            {
+                this.FrameN++;
+                this.ObjectTime = 0;
+            }
         }
     }
 

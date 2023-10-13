@@ -7,3 +7,11 @@ gw_2023_01/Logs
 gw_2023_01/Library
 *.meta
 gw_2023_01/Assets/TextMesh Pro
+build
+gw_2023_01/ProjectSettings/BurstAotSettings_StandaloneWindows.json
+gw_2023_01/ProjectSettings/CommonBurstAotSettings.json
+gw_2023_01/ProjectSettings/BurstAotSettings_WSAPlayer.json
+gw_2023_01/ProjectSettings/BurstAotSettings_Android.json
+gw_2023_01/ProjectSettings/BurstAotSettings_iOS.json
+gw_2023_01/ProjectSettings/BurstAotSettings_WebGL.json
+gw_2023_01/ProjectSettings/TimelineSettings.asset

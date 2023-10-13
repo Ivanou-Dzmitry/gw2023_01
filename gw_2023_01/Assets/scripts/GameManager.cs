@@ -3,9 +3,11 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
+using Unity.IO.LowLevel.Unsafe;
 using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.UI;
 using static TMPro.SpriteAssetUtilities.TexturePacker_JsonArray;
 
 public class GameManager : MonoBehaviour
@@ -18,6 +20,14 @@ public class GameManager : MonoBehaviour
     public TMP_Text counterText;
     public TMP_Text InfoText;
 
+    [SerializeField] private Button rtButton;
+    [SerializeField] private Button rbButton;
+    [SerializeField] private Button ltButton;
+    [SerializeField] private Button lbButton;
+
+    [SerializeField] private Sprite LargeButtonPressed;
+    [SerializeField] private Sprite LargeButtonIdle;
+
     GameObject TempGO01, TempGO02, TempGO03, TempGO04;
     GameObject MissIcon01, MissIcon02, MissIcon03;
 
@@ -26,6 +36,8 @@ public class GameManager : MonoBehaviour
     private int TotalGameTime, RandomObject, InstObjCount;
 
     private float GameTime;
+
+    List<int> GameplayRanges = new List<int>();
 
     //player direction
     public static int HeroDirection;
@@ -69,6 +81,13 @@ public class GameManager : MonoBehaviour
         MissIcon03 = GameObject.Find("lost_fish_3");
         MissIcon03.SetActive(false);
 
+        //set resoluton
+        Screen.SetResolution(1920, 1080, true);
+
+        //Gameplay Ranges
+        GameplayRanges.Add(5);
+        GameplayRanges.Add(10);
+        GameplayRanges.Add(15);
     }
 
 
@@ -89,9 +108,53 @@ public class GameManager : MonoBehaviour
     }
 
 
+    void RandomObjectRender()
+    {
+        int RandomPair;
+
+        RandomPair = UnityEngine.Random.Range(0, 2);
+
+        if (RandomPair == 0)
+        {
+            RandomObject = UnityEngine.Random.Range(1, 3);
+        }
+        else
+        {
+            RandomObject = UnityEngine.Random.Range(3, 5);
+        }
+
+        
+        objectForRender(RandomObject);
+        //Debug.Log(RandomPair + "/" + RandomObject);
+    }
+
+
     void GameLogic()
     {
         //Debug.Log(TotalGameTime);
+
+        //IntroGameplay();
+
+        //random every odd sec
+        if (GameScore >= 0 && GameScore < GameplayRanges[0] && TotalGameTime % 4 == 0)
+        {
+            RandomObjectRender();
+        }
+
+        if (GameScore > GameplayRanges[0] && GameScore < GameplayRanges[1] && TotalGameTime % 3 == 0)
+        {
+            RandomObjectRender();
+        }
+
+        if (GameScore > GameplayRanges[1] && GameScore < GameplayRanges[2] && TotalGameTime % 2 == 0)
+        {
+            RandomObjectRender();
+        }
+
+    }
+
+    void IntroGameplay()
+    {
 
         if (TotalGameTime == 1)
         {
@@ -111,13 +174,6 @@ public class GameManager : MonoBehaviour
         if (TotalGameTime == 17)
         {
             objectForRender(objectsOrder[3]);
-        }
-
-        //random every odd sec
-        if (TotalGameTime > 22 && TotalGameTime%2 == 0)
-        {
-            RandomObject = UnityEngine.Random.Range(1, 5);
-            objectForRender(RandomObject);
         }
 
     }
@@ -203,6 +259,7 @@ public class GameManager : MonoBehaviour
         if (EndGame)
         {
             GameState = false;
+            IdleState = true;
             InfoText.text = "Game Over!";
             InfoText.gameObject.SetActive(true);
         }
@@ -222,6 +279,7 @@ public class GameManager : MonoBehaviour
             if (ObjectCollected)
             {
                 GameScore++;
+                ObjectCollected = false;
             }
             else
             {
@@ -251,7 +309,7 @@ public class GameManager : MonoBehaviour
 
             //Debug.Log("ObjNameToDelete is " + ObjNameToDelete);
             GameObject toDestroy = GameObject.Find(ObjNameToDelete);
-            toDestroy.gameObject.SetActive(false);
+            //toDestroy.gameObject.SetActive(false);
             Destroy(toDestroy);
             ObjNameToDelete =null;
         }
@@ -259,56 +317,116 @@ public class GameManager : MonoBehaviour
 
     }
 
+    public void StartGame()
+    {
+        GameState = true;
+
+        IdleState = false;
+
+        PauseState = false;
+    }
+
+    public void PauseGame()
+    {
+        Debug.Log("Before / " + GameState + "/" + IdleState + "/" + PauseState);
+
+        if (GameState == false && IdleState == false && PauseState == true)
+        {
+            PauseState = false;
+            GameState = true;
+        }
+
+        if (GameState == true && IdleState == false && PauseState == false)
+        {
+            PauseState = true;
+            GameState = false;
+
+            InfoText.gameObject.SetActive(true);
+            InfoText.text = "Game paused. Press Enter for start.";
+        }
+
+
+        //Debug.Log("After / " + GameState +"/"+ IdleState +"/"+ PauseState);
+    }
+
+    public void HeroLeftTop()
+    {
+        HeroDirection = 0; //left top
+        ltButton.image.sprite = LargeButtonPressed;
+
+    }
+
+    public void HeroLeftBottom()
+    {
+        HeroDirection = 1; //left bottom
+        lbButton.image.sprite = LargeButtonPressed;
+    }
+
+    public void HeroRightTop()
+    {
+        HeroDirection = 3; //right top    
+        rtButton.image.sprite = LargeButtonPressed;
+    }
+
+    public void HeroRightBottom()
+    {
+        HeroDirection = 2; //right bottom
+        rbButton.image.sprite = LargeButtonPressed;
+    }
+
+
     void ButtonInput()
     {
         if (GameState)
         {
             if (Input.GetKeyDown(KeyCode.Q))
             {
-                HeroDirection = 0; //left top
+                HeroLeftTop();
+            }
+            else
+            {
+                ltButton.image.sprite = LargeButtonIdle;
             }
 
             if (Input.GetKeyDown(KeyCode.A))
             {
-                HeroDirection = 1; //left bottom
+                HeroLeftBottom();
+            }
+            else
+            {
+                lbButton.image.sprite = LargeButtonIdle;
             }
 
             if (Input.GetKeyDown(KeyCode.S))
             {
-                HeroDirection = 2; //right bottom
+                HeroRightBottom();
+            }
+            else
+            {
+                rbButton.image.sprite = LargeButtonIdle;
             }
 
             if (Input.GetKeyDown(KeyCode.W))
             {
-                HeroDirection = 3; //right top
+                HeroRightTop();
             }
+            else
+            {
+                rtButton.image.sprite = LargeButtonIdle;
+            }
+
         }
 
 
         if (Input.GetKeyDown(KeyCode.Return))
         {
-            GameState = true; 
-            IdleState = false;
-            PauseState = false;
+            StartGame();
             //Debug.Log("Game Start");
         }
 
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            if (GameState)
-            {
-                PauseState = true;
-                GameState = false;
-            }
-            else
-            {
-                PauseState = false;
-                GameState = true;
-            }
-
-            InfoText.gameObject.SetActive(true);
-            InfoText.text = "Pause";
-            //Debug.Log("Game Paused");
+            PauseGame();
         }
     }
 

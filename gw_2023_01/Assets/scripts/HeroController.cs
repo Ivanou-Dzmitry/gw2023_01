@@ -30,7 +30,7 @@ public class HeroController : MonoBehaviour
     {
         hideAllHero01();
 
-        if (GameManager.GameState)
+        if (GameManager.GameState == true || GameManager.PauseState == true || GameManager.IdleState == true)
         {
             objectRender(GameManager.HeroDirection);
         }

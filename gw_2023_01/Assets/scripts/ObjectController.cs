@@ -21,13 +21,15 @@ public class ObjectController : MonoBehaviour
     }
 
 
-    IEnumerator objectRender()
+    void objectRender()
     {
-
         ObjectFrames[this.FrameN].gameObject.SetActive(true);
+    }
 
+    IEnumerator counterLogic()
+    {
         //try to add score
-        if (this.FrameN  == 4 && GameManager.HeroDirection == this.Direction)
+        if (this.FrameN == 4 && GameManager.HeroDirection == this.Direction)
         {
             GameManager.ObjectCollected = true;
             GameManager.ObjNameToDelete = this.name;
@@ -40,13 +42,16 @@ public class ObjectController : MonoBehaviour
             GameManager.ObjNameToDelete = this.name;
         }
 
+        yield return null;
+    }
+
+    void hidePrevious()
+    {
         //turn on previus
         if (this.FrameN > 0)
         {
-            ObjectFrames[this.FrameN -1].gameObject.SetActive(false);
+            ObjectFrames[this.FrameN - 1].gameObject.SetActive(false);
         }
-
-        yield return null;
     }
 
 
@@ -56,14 +61,24 @@ public class ObjectController : MonoBehaviour
         {
             this.ObjectTime = this.ObjectTime + Time.unscaledDeltaTime;
 
-            StartCoroutine(objectRender());
+            objectRender();
 
             if (this.ObjectTime > 1f)
             {
+                StartCoroutine(counterLogic());
+
                 this.FrameN++;
+
+                hidePrevious();
+
                 this.ObjectTime = 0;
             }
         }
+    }
+
+    private void OnDestroy()
+    {
+        StopCoroutine(counterLogic());
     }
 
 }

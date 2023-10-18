@@ -40,10 +40,21 @@ public class ObjectController : MonoBehaviour
         {
             GameManager.ObjectCollected = false;
             GameManager.ObjNameToDelete = this.name;
+            GameManager.LooseObjectName = this.name;
+            GameManager.LooseState = true;
+
+            //Debug.Log("Loose"+GameManager.LooseObjectName);
         }
 
-        yield return null;
+        //last frame
+        if (this.FrameN == 7)
+        {
+            GameManager.LooseState = false;
+        }
+
+            yield return null;
     }
+
 
     void hidePrevious()
     {
@@ -57,24 +68,45 @@ public class ObjectController : MonoBehaviour
 
     void Update()
     {
-        if (GameManager.GameState)
+        //for all
+        if (GameManager.GameState == true && GameManager.LooseState == false)
         {
-            this.ObjectTime = this.ObjectTime + Time.unscaledDeltaTime;
+            objectLogic();
+        }
 
-            objectRender();
+        //for loose
+        if (GameManager.LooseState==true && GameManager.LooseObjectName == this.name)
+        {
+            objectLogic();
+        }
 
-            if (this.ObjectTime > 1f)
-            {
-                StartCoroutine(counterLogic());
+    }
 
-                this.FrameN++;
+    void objectLogic()
+    {
+        //time for object
+        this.ObjectTime = this.ObjectTime + Time.unscaledDeltaTime;
 
-                hidePrevious();
+        //render
+        objectRender();
 
-                this.ObjectTime = 0;
-            }
+        //each 1sec
+        if (this.ObjectTime > 1f)
+        {
+            //counterlogic
+            StartCoroutine(counterLogic());
+            
+            //addframe
+            this.FrameN++;
+           
+            //hide previous
+            hidePrevious();
+
+            //zero time
+            this.ObjectTime = 0;
         }
     }
+
 
     private void OnDestroy()
     {

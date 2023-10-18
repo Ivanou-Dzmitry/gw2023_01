@@ -52,6 +52,7 @@ public class GameManager : MonoBehaviour
     private readonly List<int> objectsOrder = new List<int>(); //for random order
 
     public static string ObjNameToDelete;
+    public static string LooseObjectName;
 
     void Start()
     {
@@ -230,12 +231,13 @@ public class GameManager : MonoBehaviour
     {
         
         //listen kbd
+        
         ButtonInput();
 
         //check speed
         SpeedController();
 
-        if (GameState)
+        if (GameState == true && LooseState == false)
         {
             GameTime = GameTime + Time.unscaledDeltaTime;
 
@@ -324,6 +326,8 @@ public class GameManager : MonoBehaviour
         IdleState = false;
 
         PauseState = false;
+
+        LooseState = false;
     }
 
     public void PauseGame()
@@ -377,7 +381,7 @@ public class GameManager : MonoBehaviour
 
     void ButtonInput()
     {
-        if (GameState)
+        if (GameState==true && LooseState==false)
         {
             if (Input.GetKeyDown(KeyCode.Q))
             {

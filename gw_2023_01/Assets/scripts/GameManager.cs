@@ -20,6 +20,9 @@ public class GameManager : MonoBehaviour
     public TMP_Text counterText;
     public TMP_Text InfoText;
 
+    public TMP_Text GameATxt;
+    public TMP_Text GameBTxt;
+
     [SerializeField] private Button rtButton;
     [SerializeField] private Button rbButton;
     [SerializeField] private Button ltButton;
@@ -64,6 +67,9 @@ public class GameManager : MonoBehaviour
         EndGame = false;
 
         counterText.text = "0"; //start count
+
+        GameATxt.enabled = false;
+        GameBTxt.enabled = false;
 
         HeroDirection = 2; // bottom right
 
@@ -319,8 +325,23 @@ public class GameManager : MonoBehaviour
 
     }
 
-    public void StartGame()
+
+    public void gameA()
     {
+        GameATxt.enabled = true;
+        StartGame();
+    }
+
+    public void gameB()
+    {
+        GameBTxt.enabled = true;
+        StartGame();
+    }
+
+
+    void StartGame()
+    {
+
         GameState = true;
 
         IdleState = false;

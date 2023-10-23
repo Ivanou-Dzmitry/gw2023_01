@@ -72,12 +72,22 @@ public class ObjectController : MonoBehaviour
         if (GameManager.GameState == true && GameManager.LooseState == false)
         {
             objectLogic();
+            //Debug.Log("Stop here 1");
         }
 
         //for loose
-        if (GameManager.LooseState==true && GameManager.LooseObjectName == this.name)
+        if (GameManager.LooseState == true && GameManager.LooseObjectName == this.name)
         {
             objectLogic();
+            //Debug.Log("Stop here 2");
+        }
+
+        if (GameManager.EndGameState == true)
+        {
+            hideObect();
+            //zero time
+            this.FrameN = 0;
+            Destroy(this.gameObject);
         }
 
     }
@@ -105,6 +115,12 @@ public class ObjectController : MonoBehaviour
             //zero time
             this.ObjectTime = 0;
         }
+    }
+
+    void hideObect()
+    {
+        foreach (SpriteRenderer sprite in ObjectFrames)
+            sprite.gameObject.SetActive(false);
     }
 
 

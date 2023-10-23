@@ -10,10 +10,10 @@ public class HeroController : MonoBehaviour
     {
         ObjectFrames = GetComponentsInChildren<SpriteRenderer>();
 
-        hideAllHero01();
+        hideObect();
     }
 
-    void hideAllHero01()
+    void hideObect()
     {
         foreach (SpriteRenderer sprite in ObjectFrames)
             sprite.gameObject.SetActive(false);
@@ -28,7 +28,7 @@ public class HeroController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        hideAllHero01();
+        hideObect();
 
         if (GameManager.GameState == true || GameManager.PauseState == true || GameManager.IdleState == true)
         {

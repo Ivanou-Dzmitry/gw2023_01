@@ -17,7 +17,9 @@ public class GameManager : MonoBehaviour
     public GameObject gameObj03;
     public GameObject gameObj04;
 
+    //txtblock
     public TMP_Text counterText;
+    public TMP_Text MissText;
     public TMP_Text InfoText;
 
     public TMP_Text GameATxt;
@@ -32,23 +34,21 @@ public class GameManager : MonoBehaviour
     [SerializeField] private Sprite LargeButtonIdle;
 
     GameObject TempGO01, TempGO02, TempGO03, TempGO04;
-    GameObject MissIcon01, MissIcon02, MissIcon03;
 
-    public static bool IdleState, GameState, LooseState, PauseState, EndGame;
+    public static bool IdleState, GameState, LooseState, PauseState, EndGameState, ShowAddChar;
+    public static bool ObjectCollected;
 
-    private int TotalGameTime, RandomObject, InstObjCount;
+    private int RandomObject, InstObjCount, ShowAddCharEndTime, GameEndValue;
+    private int GameScore;    //Score
+
+
+    public static int TotalGameTime;
+    public static int LostScore;
+    public static int HeroDirection; //player direction
 
     private float GameTime;
 
     List<int> GameplayRanges = new List<int>();
-
-    //player direction
-    public static int HeroDirection;
-    
-    //Score
-    private int GameScore;
-    private int LostScore;
-    public static bool ObjectCollected;
 
     private readonly int GameObjectsCount = 4; //game objects in current game
 
@@ -64,12 +64,15 @@ public class GameManager : MonoBehaviour
 
         //idle sate of game
         IdleState = true;
-        EndGame = false;
+        EndGameState = false;
+        ShowAddChar = false;
+        LooseState = false;
 
         counterText.text = "0"; //start count
 
         GameATxt.enabled = false;
         GameBTxt.enabled = false;
+        MissText.enabled = false;
 
         HeroDirection = 2; // bottom right
 
@@ -79,22 +82,15 @@ public class GameManager : MonoBehaviour
         GameScore = 0;
         LostScore = 0;
 
-        MissIcon01 = GameObject.Find("lost_fish_1");
-        MissIcon01.SetActive(false);
-
-        MissIcon02 = GameObject.Find("lost_fish_2");
-        MissIcon02.SetActive(false);
-
-        MissIcon03 = GameObject.Find("lost_fish_3");
-        MissIcon03.SetActive(false);
-
         //set resoluton
         Screen.SetResolution(1920, 1080, true);
 
-        //Gameplay Ranges
+        //initial Gameplay Ranges
         GameplayRanges.Add(5);
         GameplayRanges.Add(10);
         GameplayRanges.Add(15);
+
+        GameEndValue = 6;
     }
 
 
@@ -130,9 +126,10 @@ public class GameManager : MonoBehaviour
             RandomObject = UnityEngine.Random.Range(3, 5);
         }
 
-        
         objectForRender(RandomObject);
         //Debug.Log(RandomPair + "/" + RandomObject);
+
+
     }
 
 
@@ -143,20 +140,27 @@ public class GameManager : MonoBehaviour
         //IntroGameplay();
 
         //random every odd sec
-        if (GameScore >= 0 && GameScore < GameplayRanges[0] && TotalGameTime % 4 == 0)
+        if (GameScore >= 0 && GameScore <= GameplayRanges[0] && TotalGameTime % 4 == 0)
         {
             RandomObjectRender();
+            //Debug.Log("Range 1");
         }
 
-        if (GameScore > GameplayRanges[0] && GameScore < GameplayRanges[1] && TotalGameTime % 3 == 0)
+        if (GameScore > GameplayRanges[0] && GameScore <= GameplayRanges[1] && TotalGameTime % 3 == 0)
         {
             RandomObjectRender();
+           // Debug.Log("Range 2");
         }
 
-        if (GameScore > GameplayRanges[1] && GameScore < GameplayRanges[2] && TotalGameTime % 2 == 0)
+        if (GameScore > GameplayRanges[1] && GameScore <= GameplayRanges[2] && TotalGameTime % 2 == 0)
         {
             RandomObjectRender();
+            //Debug.Log("Range 3");
         }
+
+        //Debug.Log(GameScore +" / " + "GR1/" + GameplayRanges[1] + " GR2/" + GameplayRanges[2]);
+
+
 
     }
 
@@ -230,6 +234,16 @@ public class GameManager : MonoBehaviour
             default:
                 break;
         }
+
+        //show additional sharacter
+        if (ShowAddCharEndTime > TotalGameTime)
+        {
+            ShowAddChar = true;
+        }
+        else
+        {
+            ShowAddChar = false;
+        }
     }
 
     
@@ -251,24 +265,40 @@ public class GameManager : MonoBehaviour
 
             ScoreCounter();
 
+            //max lost value is 6
+            if (LostScore >= GameEndValue)
+            {
+                EndGameState = true;
+            }
+
             if (GameTime > 1f)
             {
-                //Debug.Log("TotalGameTime: " + TotalGameTime);
-                //Debug.Log("GameTime: " + GameTime);
 
                 GameLogic();
 
                 TotalGameTime++;
+
+                // each 10 sec show second sharacter
+                if (TotalGameTime % 10 == 0)
+                {
+                    int RandomAddCharTime;
+                    RandomAddCharTime = UnityEngine.Random.Range(4, 6);
+
+                    ShowAddCharEndTime = TotalGameTime + RandomAddCharTime;
+                }
+
                 GameTime = 0;
             }
-
         }
 
-        if (EndGame)
+        if (EndGameState)
         {
             GameState = false;
+            PauseState = false;
             IdleState = true;
-            InfoText.text = "Game Over!";
+            LooseState = false;
+
+            InfoText.text = "Game Over! Press GAME A or B button to start new game.";
             InfoText.gameObject.SetActive(true);
         }
         
@@ -286,34 +316,26 @@ public class GameManager : MonoBehaviour
         {
             if (ObjectCollected)
             {
-                GameScore++;
-                ObjectCollected = false;
+                GameScore++; //add score
+
+                ObjectCollected = false; //reset collected status
             }
             else
             {
-                LostScore++;
+                MissText.enabled = true; //show miss text
+
+                if (ShowAddChar == true)
+                {
+                    LostScore++; //if we see add char
+                }
+                else
+                {
+                    LostScore = LostScore + 2; //if we cant see add shar
+                }
+
             }
 
-            switch (LostScore)
-            {
-                case 1:
-                    MissIcon01.SetActive(true);
-                    break;
-                case 2:
-                    MissIcon02.SetActive(true);
-                    break;
-                case 3:
-                    MissIcon03.SetActive(true);
-                    break;
-                default:
-                    break;
-            }
-
-
-            if (LostScore == 3)
-            {
-                EndGame = true;
-            }
+            Debug.Log("LostScore is " + LostScore + "/" + ShowAddChar + "/" + EndGameState);
 
             //Debug.Log("ObjNameToDelete is " + ObjNameToDelete);
             GameObject toDestroy = GameObject.Find(ObjNameToDelete);
@@ -322,23 +344,25 @@ public class GameManager : MonoBehaviour
             ObjNameToDelete =null;
         }
         
-
     }
 
 
     public void gameA()
     {
         GameATxt.enabled = true;
+
         StartGame();
     }
 
     public void gameB()
     {
         GameBTxt.enabled = true;
+
         StartGame();
     }
 
 
+    //start new game routine
     void StartGame()
     {
 
@@ -349,11 +373,23 @@ public class GameManager : MonoBehaviour
         PauseState = false;
 
         LooseState = false;
+
+        EndGameState = false;
+
+        GameScore = 0;
+        LostScore = 0;
+
+        MissText.enabled = false; //hide miss text
+
+        GameTime = 0;
+        TotalGameTime = 0;
+        ShowAddCharEndTime = 0;
+
     }
 
     public void PauseGame()
     {
-        Debug.Log("Before / " + GameState + "/" + IdleState + "/" + PauseState);
+        //Debug.Log("Before / " + GameState + "/" + IdleState + "/" + PauseState);
 
         if (GameState == false && IdleState == false && PauseState == true)
         {
@@ -369,7 +405,6 @@ public class GameManager : MonoBehaviour
             InfoText.gameObject.SetActive(true);
             InfoText.text = "Game paused. Press Enter for start.";
         }
-
 
         //Debug.Log("After / " + GameState +"/"+ IdleState +"/"+ PauseState);
     }
@@ -446,6 +481,7 @@ public class GameManager : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Return))
         {
             StartGame();
+            GameATxt.enabled = true;
             //Debug.Log("Game Start");
         }
 

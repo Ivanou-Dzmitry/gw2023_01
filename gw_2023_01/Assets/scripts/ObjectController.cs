@@ -90,6 +90,12 @@ public class ObjectController : MonoBehaviour
             Destroy(this.gameObject);
         }
 
+        if (GameManager.IdleState)
+        {
+            objectLogic();
+            //Debug.Log("Stop here 1");
+        }
+
     }
 
     void objectLogic()
@@ -115,6 +121,7 @@ public class ObjectController : MonoBehaviour
             //zero time
             this.ObjectTime = 0;
         }
+
     }
 
     void hideObect()

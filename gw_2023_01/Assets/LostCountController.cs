@@ -24,9 +24,7 @@ public class LostCountController : MonoBehaviour
     {
         if (LostScore == 0)
         {
-            ObjectFrames[0].gameObject.SetActive(false);
-            ObjectFrames[1].gameObject.SetActive(false);
-            ObjectFrames[2].gameObject.SetActive(false);
+            HideObj();
         }
 
         if (LostScore == 1)
@@ -75,7 +73,7 @@ public class LostCountController : MonoBehaviour
             }
         }
 
-        if (LostScore >= 6 || GameManager.EndGameState == true)
+        if (LostScore >= 6)
         {
             ObjectFrames[2].gameObject.SetActive(true);
         }
@@ -85,6 +83,14 @@ public class LostCountController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        objectRender(GameManager.LostScore); 
+        if (!GameManager.IdleState) //dont render in idle
+        {
+            objectRender(GameManager.LostScore);
+        }
+        else
+        {
+            HideObj();
+        }
+
     }
 }

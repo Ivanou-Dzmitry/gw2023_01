@@ -239,6 +239,7 @@ public class GameManager : MonoBehaviour
         if (ShowAddCharEndTime > TotalGameTime)
         {
             ShowAddChar = true;
+            //Debug.Log("Render Add");
         }
         else
         {
@@ -249,13 +250,18 @@ public class GameManager : MonoBehaviour
     
     void Update()
     {
-        
         //listen kbd
-        
         ButtonInput();
 
         //check speed
         SpeedController();
+
+        //show clock on idle
+        if (IdleState)
+        {
+            IdleLogic();
+        }
+
 
         if (GameState == true && LooseState == false)
         {
@@ -271,7 +277,8 @@ public class GameManager : MonoBehaviour
                 EndGameState = true;
             }
 
-            if (GameTime > 1f)
+            //1 sec
+            if (GameTime > 1f) 
             {
 
                 GameLogic();
@@ -293,13 +300,7 @@ public class GameManager : MonoBehaviour
 
         if (EndGameState)
         {
-            GameState = false;
-            PauseState = false;
-            IdleState = true;
-            LooseState = false;
-
-            InfoText.text = "Game Over! Press GAME A or B button to start new game.";
-            InfoText.gameObject.SetActive(true);
+            EndGameLogic();
         }
         
 
@@ -307,10 +308,77 @@ public class GameManager : MonoBehaviour
 
     }
 
+    void EndGameLogic()
+    {
+        GameState = false;
+        PauseState = false;
+
+        LooseState = false;
+
+        InfoText.text = "Game Over! Press GAME A or B button to start new game.";
+        InfoText.gameObject.SetActive(true);
+    }
+
+    void IdleLogic()
+    {
+        counterText.text = DateTime.Now.ToString("HH:mm");
+
+        GameTime = GameTime + Time.unscaledDeltaTime;
+
+        ScoreCounter();
+
+        //99 for idle cycle
+        if (GameScore == 99)
+        {
+            GameScore = 0;
+        }
+
+        if (GameTime > 1f)
+        {
+            HeroDirection = UnityEngine.Random.Range(0, 4);
+            GameLogic();
+            TotalGameTime++;
+
+            if (TotalGameTime % 10 == 0)
+            {
+                int RandomAddCharTime;
+                RandomAddCharTime = UnityEngine.Random.Range(4, 6);
+
+                ShowAddCharEndTime = TotalGameTime + RandomAddCharTime;
+            }
+            GameTime = 0;
+        }
+    }
+
     public void ScoreCounter()
     {
         //TotalGameTime +   + "/" + InstObjCount.ToString()
-        counterText.text = GameScore.ToString();
+        if (GameScore < 100)
+        {
+            if (!IdleState){ counterText.text = GameScore.ToString();  } //for idle
+        }
+        else
+        {
+            int hundredDigit = (int)Math.Abs(GameScore / 100 % 10); // get hundreds
+
+            string ScoreFirstPartString = hundredDigit.ToString();
+
+            int SecondPartInt = GameScore - (hundredDigit * 100);
+            string ScoreSecondPartString = SecondPartInt.ToString();
+
+            if (ScoreSecondPartString == "0")
+            {
+                ScoreSecondPartString = "00";
+            }
+
+            if (SecondPartInt <= 9 && GameScore > 100)
+            {
+                ScoreSecondPartString = "0" + ScoreSecondPartString;
+            }
+                //need because this used for clock
+                counterText.text = " " + ScoreFirstPartString + " " + ScoreSecondPartString;
+        }
+        
 
         if (ObjNameToDelete != null)
         {
@@ -322,7 +390,7 @@ public class GameManager : MonoBehaviour
             }
             else
             {
-                MissText.enabled = true; //show miss text
+                if (!IdleState) { MissText.enabled = true; } //show miss text NOT in idle
 
                 if (ShowAddChar == true)
                 {
@@ -335,7 +403,7 @@ public class GameManager : MonoBehaviour
 
             }
 
-            Debug.Log("LostScore is " + LostScore + "/" + ShowAddChar + "/" + EndGameState);
+            //Debug.Log("LostScore is " + LostScore + "/" + ShowAddChar + "/" + EndGameState);
 
             //Debug.Log("ObjNameToDelete is " + ObjNameToDelete);
             GameObject toDestroy = GameObject.Find(ObjNameToDelete);
@@ -349,41 +417,82 @@ public class GameManager : MonoBehaviour
 
     public void gameA()
     {
-        GameATxt.enabled = true;
+        if (!GameState)
+        {
+            StartGame("A");
+        }
 
-        StartGame();
     }
 
     public void gameB()
     {
-        GameBTxt.enabled = true;
-
-        StartGame();
+        if (!GameState)
+        {
+            StartGame("B");
+        }
     }
 
 
-    //start new game routine
-    void StartGame()
+    public void idleState()
     {
+        if (EndGameState)
+        {
+            IdleState = true;
 
-        GameState = true;
+            GameATxt.enabled = false;
+            GameBTxt.enabled = false;
 
-        IdleState = false;
+            GameScore = 0;
+            LostScore = 0;
 
-        PauseState = false;
+            MissText.enabled = false; //hide miss text
 
-        LooseState = false;
+            GameTime = 0;
+            TotalGameTime = 0;
+            ShowAddCharEndTime = 0;
 
-        EndGameState = false;
+            EndGameState = false;
+        }
+    }
 
-        GameScore = 0;
-        LostScore = 0;
+    //start new game routine
+    void StartGame(string GameType)
+    {
+            if (!PauseState)
+            {
+            GameState = true;
 
-        MissText.enabled = false; //hide miss text
+            IdleState = false;
 
-        GameTime = 0;
-        TotalGameTime = 0;
-        ShowAddCharEndTime = 0;
+            LooseState = false;
+
+            EndGameState = false;
+
+            GameScore = 0;
+            LostScore = 0;
+
+            if (GameType == "A")
+            {
+                GameATxt.enabled = true;
+            }
+            else
+            {
+                GameBTxt.enabled = true;
+            }
+
+            MissText.enabled = false; //hide miss text
+
+            GameTime = 0;
+            TotalGameTime = 0;
+            ShowAddCharEndTime = 0;
+
+            HeroDirection = 2; // bottom right
+
+            Destroy(TempGO01);
+            Destroy(TempGO02);
+            Destroy(TempGO03);
+            Destroy(TempGO04);
+            }
 
     }
 
@@ -395,15 +504,13 @@ public class GameManager : MonoBehaviour
         {
             PauseState = false;
             GameState = true;
-        }
-
-        if (GameState == true && IdleState == false && PauseState == false)
+        } else if (GameState == true && IdleState == false && PauseState == false)
         {
             PauseState = true;
             GameState = false;
 
             InfoText.gameObject.SetActive(true);
-            InfoText.text = "Game paused. Press Enter for start.";
+            InfoText.text = "Game paused!";
         }
 
         //Debug.Log("After / " + GameState +"/"+ IdleState +"/"+ PauseState);
@@ -480,9 +587,9 @@ public class GameManager : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Return))
         {
-            StartGame();
-            GameATxt.enabled = true;
-            //Debug.Log("Game Start");
+                       
+            //PauseState = false;
+            //Debug.Log("GameState" + GameState +"/"+ PauseState);
         }
 
         if (Input.GetKeyDown(KeyCode.Escape))

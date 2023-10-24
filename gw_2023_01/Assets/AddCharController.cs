@@ -23,23 +23,33 @@ public class AddCharController : MonoBehaviour
             sprite.gameObject.SetActive(false);
     }
 
+    void AddCharRenderLogic()
+    {
+        //2 frames
+        if (GameManager.TotalGameTime % 3 == 0)
+        {
+            ObjectFrames[0].gameObject.SetActive(true);
+        }
+        else
+        {
+            ObjectFrames[1].gameObject.SetActive(true);
+        }
+    }
+
     void objectRender()
     {
-        //Debug.Log(ShowTimeEnd + "/" + GameManager.TotalGameTime);
+        //Debug.Log("GT: " + GameManager.TotalGameTime +" / GS:" + GameManager.GameState);
 
         HideObj();
 
         if (GameManager.GameState == true && GameManager.ShowAddChar == true && GameManager.EndGameState == false)
         {
-            //2 frames
-            if (GameManager.TotalGameTime % 3 == 0)
-            {
-                ObjectFrames[0].gameObject.SetActive(true);
-            }
-            else
-            {
-                ObjectFrames[1].gameObject.SetActive(true);
-            }
+            AddCharRenderLogic();
+        }
+
+        if (GameManager.IdleState == true && GameManager.ShowAddChar == true)
+        {
+            AddCharRenderLogic();
         }
     }
 

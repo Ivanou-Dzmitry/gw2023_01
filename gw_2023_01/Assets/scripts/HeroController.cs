@@ -29,11 +29,6 @@ public class HeroController : MonoBehaviour
     void Update()
     {
         hideObect();
-
-        if (GameManager.GameState == true || GameManager.PauseState == true || GameManager.IdleState == true)
-        {
-            objectRender(GameManager.HeroDirection);
-        }
-            
+        objectRender(GameManager.HeroDirection);
     }
 }

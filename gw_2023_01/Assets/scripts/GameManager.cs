@@ -91,6 +91,8 @@ public class GameManager : MonoBehaviour
         GameplayRanges.Add(15);
 
         GameEndValue = 6;
+
+        InfoText.text = "Press button GAME A or B to start game.";
     }
 
 
@@ -474,10 +476,12 @@ public class GameManager : MonoBehaviour
             if (GameType == "A")
             {
                 GameATxt.enabled = true;
+                GameBTxt.enabled = false;
             }
             else
             {
                 GameBTxt.enabled = true;
+                GameATxt.enabled = false;
             }
 
             MissText.enabled = false; //hide miss text
@@ -518,27 +522,40 @@ public class GameManager : MonoBehaviour
 
     public void HeroLeftTop()
     {
-        HeroDirection = 0; //left top
-        ltButton.image.sprite = LargeButtonPressed;
+        if (GameState)
+        {
+            HeroDirection = 0; //left top
+            ltButton.image.sprite = LargeButtonPressed;
+        }
 
     }
 
     public void HeroLeftBottom()
     {
-        HeroDirection = 1; //left bottom
-        lbButton.image.sprite = LargeButtonPressed;
+        if (GameState)
+        {
+            HeroDirection = 1; //left bottom
+            lbButton.image.sprite = LargeButtonPressed;
+        }
     }
 
     public void HeroRightTop()
     {
-        HeroDirection = 3; //right top    
-        rtButton.image.sprite = LargeButtonPressed;
+        if(GameState)
+        {
+            HeroDirection = 3; //right top    
+            rtButton.image.sprite = LargeButtonPressed;
+        }
+
     }
 
     public void HeroRightBottom()
     {
-        HeroDirection = 2; //right bottom
-        rbButton.image.sprite = LargeButtonPressed;
+        if (GameState)
+        {
+            HeroDirection = 2; //right bottom
+            rbButton.image.sprite = LargeButtonPressed;
+        }
     }
 
 

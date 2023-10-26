@@ -36,23 +36,30 @@ public class ObjectController : MonoBehaviour
         }
 
         //lost object
-        if (this.FrameN == 5)
+        if (this.FrameN == 5 && GameManager.IdleState == false)
         {
             GameManager.ObjectCollected = false;
             GameManager.ObjNameToDelete = this.name;
             GameManager.LooseObjectName = this.name;
             GameManager.LooseState = true;
 
-            //Debug.Log("Loose"+GameManager.LooseObjectName);
+            //Debug.Log("Loose: " + GameManager.LooseObjectName);
         }
 
         //last frame
-        if (this.FrameN == 7)
+        if (this.FrameN == 7 && GameManager.IdleState == false)
         {
             GameManager.LooseState = false;
+            //Debug.Log("LooseState: " + GameManager.LooseState);
         }
 
-            yield return null;
+        if (this.FrameN == 7 && GameManager.IdleState == true)
+        {
+            Destroy(this.gameObject);
+        }
+
+
+        yield return null;
     }
 
 
@@ -88,12 +95,15 @@ public class ObjectController : MonoBehaviour
             //zero time
             this.FrameN = 0;
             Destroy(this.gameObject);
+
+            //Debug.Log("EndGameState: " + GameManager.EndGameState);
         }
 
-        if (GameManager.IdleState)
+        //for idle
+        if (GameManager.IdleState == true)
         {
             objectLogic();
-            //Debug.Log("Stop here 1");
+            //Debug.Log("Stop here 3");
         }
 
     }
@@ -114,7 +124,9 @@ public class ObjectController : MonoBehaviour
             
             //addframe
             this.FrameN++;
-           
+
+            //Debug.Log("this.FrameN: " + this.FrameN);
+
             //hide previous
             hidePrevious();
 

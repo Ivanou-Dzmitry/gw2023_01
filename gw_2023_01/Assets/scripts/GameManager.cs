@@ -16,6 +16,7 @@ public class GameManager : MonoBehaviour
     public GameObject gameObj02;
     public GameObject gameObj03;
     public GameObject gameObj04;
+    public GameObject MenuPanel;
 
     //txtblock
     public TMP_Text counterText;
@@ -67,6 +68,8 @@ public class GameManager : MonoBehaviour
         EndGameState = false;
         ShowAddChar = false;
         LooseState = false;
+
+        MenuPanel.SetActive(false);
 
         counterText.text = "0"; //start count
 
@@ -365,7 +368,7 @@ public class GameManager : MonoBehaviour
 
             string ScoreFirstPartString = hundredDigit.ToString();
 
-            int SecondPartInt = GameScore - (hundredDigit * 100);
+            int SecondPartInt = GameScore - (hundredDigit * 100); //get tens
             string ScoreSecondPartString = SecondPartInt.ToString();
 
             if (ScoreSecondPartString == "0")
@@ -408,10 +411,12 @@ public class GameManager : MonoBehaviour
             //Debug.Log("LostScore is " + LostScore + "/" + ShowAddChar + "/" + EndGameState);
 
             //Debug.Log("ObjNameToDelete is " + ObjNameToDelete);
+
             GameObject toDestroy = GameObject.Find(ObjNameToDelete);
-            //toDestroy.gameObject.SetActive(false);
+            
             Destroy(toDestroy);
-            ObjNameToDelete =null;
+
+            ObjNameToDelete = null;
         }
         
     }
@@ -473,6 +478,7 @@ public class GameManager : MonoBehaviour
             GameScore = 0;
             LostScore = 0;
 
+            //game type
             if (GameType == "A")
             {
                 GameATxt.enabled = true;
@@ -496,6 +502,7 @@ public class GameManager : MonoBehaviour
             Destroy(TempGO02);
             Destroy(TempGO03);
             Destroy(TempGO04);
+
             }
 
     }
@@ -561,7 +568,7 @@ public class GameManager : MonoBehaviour
 
     void ButtonInput()
     {
-        if (GameState==true && LooseState==false)
+        if (GameState == true)
         {
             if (Input.GetKeyDown(KeyCode.Q))
             {
@@ -613,6 +620,16 @@ public class GameManager : MonoBehaviour
         {
             PauseGame();
         }
+    }
+
+    public void OpenMenu()
+    {
+        if (MenuPanel != null)
+        {
+            bool isActive = MenuPanel.activeSelf;
+            MenuPanel.SetActive(!isActive);
+        }
+        Debug.Log("HERE");
     }
 
     void SpeedController()

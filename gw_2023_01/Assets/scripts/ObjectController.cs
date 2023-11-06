@@ -7,6 +7,8 @@ public class ObjectController : MonoBehaviour
     private int FrameN;
     private float ObjectTime;
 
+    public AudioSource audioSource;
+
     //direction of player for win
     [SerializeField] private int Direction;
 
@@ -28,11 +30,19 @@ public class ObjectController : MonoBehaviour
 
     IEnumerator counterLogic()
     {
+        if (this.FrameN < 4 && GameManager.IdleState == false)
+        {
+            audioSource.Play(); 
+        }
+
         //try to add score
         if (this.FrameN == 4 && GameManager.HeroDirection == this.Direction)
         {
             GameManager.ObjectCollected = true;
             GameManager.ObjNameToDelete = this.name;
+
+            AudioClip CatchSound = (AudioClip)Resources.Load("catch");
+            audioSource.PlayOneShot(CatchSound);
         }
 
         //lost object
@@ -119,6 +129,11 @@ public class ObjectController : MonoBehaviour
         //each 1sec
         if (this.ObjectTime > 1f)
         {
+            if (!GameManager.IdleState)
+            {
+                //
+            }
+
             //counterlogic
             StartCoroutine(counterLogic());
             
@@ -132,6 +147,8 @@ public class ObjectController : MonoBehaviour
 
             //zero time
             this.ObjectTime = 0;
+
+            
         }
 
     }

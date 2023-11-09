@@ -18,6 +18,8 @@ public class GameManager : MonoBehaviour
     public GameObject gameObj04;
     public GameObject MenuPanel;
 
+    public AudioSource audioSource;
+
     //txtblock
     public TMP_Text counterText;
     public TMP_Text MissText;
@@ -65,6 +67,7 @@ public class GameManager : MonoBehaviour
 
         //idle sate of game
         IdleState = true;
+
         EndGameState = false;
         ShowAddChar = false;
         LooseState = false;
@@ -95,10 +98,9 @@ public class GameManager : MonoBehaviour
 
         GameEndValue = 6;
 
-        InfoText.text = "Press button GAME A or B to start game.";
+        InfoText.text = "Time mode. Press GAME A or B button to start game";
+
     }
-
-
 
 
     //choose random order of game objects
@@ -165,7 +167,7 @@ public class GameManager : MonoBehaviour
 
         //Debug.Log(GameScore +" / " + "GR1/" + GameplayRanges[1] + " GR2/" + GameplayRanges[2]);
 
-
+        SoundLogic("normal");
 
     }
 
@@ -392,6 +394,8 @@ public class GameManager : MonoBehaviour
                 GameScore++; //add score
 
                 ObjectCollected = false; //reset collected status
+
+                SoundLogic("catch");
             }
             else
             {
@@ -419,6 +423,32 @@ public class GameManager : MonoBehaviour
             ObjNameToDelete = null;
         }
         
+    }
+
+    public void SoundLogic(string SoundEvent)
+    {
+        AudioClip Tone01 = (AudioClip)Resources.Load("tone01");
+        AudioClip Tone02 = (AudioClip)Resources.Load("tone02");
+
+        AudioClip Catch01 = (AudioClip)Resources.Load("catch");
+
+        if (SoundEvent == "normal")
+        {
+            if (TotalGameTime % 2 == 0)
+            {
+                audioSource.PlayOneShot(Tone01);
+            }
+            else
+            {
+                audioSource.PlayOneShot(Tone02);
+            }
+        }
+
+        if (SoundEvent == "catch")
+        {
+            audioSource.PlayOneShot(Catch01);
+        }
+
     }
 
 
@@ -459,6 +489,9 @@ public class GameManager : MonoBehaviour
             ShowAddCharEndTime = 0;
 
             EndGameState = false;
+
+            InfoText.gameObject.SetActive(true);
+            InfoText.text = "Time mode. Press GAME A or B button to start game";
         }
     }
 
@@ -521,7 +554,7 @@ public class GameManager : MonoBehaviour
             GameState = false;
 
             InfoText.gameObject.SetActive(true);
-            InfoText.text = "Game paused!";
+            InfoText.text = "Game Paused";
         }
 
         //Debug.Log("After / " + GameState +"/"+ IdleState +"/"+ PauseState);
@@ -629,7 +662,7 @@ public class GameManager : MonoBehaviour
             bool isActive = MenuPanel.activeSelf;
             MenuPanel.SetActive(!isActive);
         }
-        Debug.Log("HERE");
+        //Debug.Log("HERE");
     }
 
     void SpeedController()

@@ -11,6 +11,7 @@ public class AddCharController : MonoBehaviour
     void Start()
     {
         ObjectFrames = GetComponentsInChildren<SpriteRenderer>();
+
         HideObj();
 
         //char animation

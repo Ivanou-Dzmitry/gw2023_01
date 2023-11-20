@@ -1,4 +1,6 @@
 using System.Collections;
+using System.Diagnostics;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class ObjectController : MonoBehaviour
@@ -7,8 +9,11 @@ public class ObjectController : MonoBehaviour
     private int FrameN;
     private float ObjectTime;
 
+    public AudioSource audioSource;
+
     //direction of player for win
     [SerializeField] private int Direction;
+    [SerializeField] private string ObjectSound;
 
     void Start()
     {
@@ -18,6 +23,13 @@ public class ObjectController : MonoBehaviour
             sprite.gameObject.SetActive(false);
 
         this.FrameN = 0;
+
+        if (GameManager.LooseState == false)
+        {
+            GameManager.ObjectSound = this.ObjectSound;
+        }
+
+        //UnityEngine.Debug.Log("sfdg");
     }
 
 
@@ -43,8 +55,8 @@ public class ObjectController : MonoBehaviour
             GameManager.ObjNameToDelete = this.name;
             GameManager.LooseObjectName = this.name;
             GameManager.LooseState = true;
-
             //Debug.Log("Loose: " + GameManager.LooseObjectName);
+            GameManager.ObjectSound = null;
         }
 
         //last frame
@@ -109,6 +121,11 @@ public class ObjectController : MonoBehaviour
 
     }
 
+    private void LateUpdate()
+    {
+        //Debug.Log("LATE");
+    }
+
     void objectLogic()
     {
         //time for object
@@ -119,15 +136,31 @@ public class ObjectController : MonoBehaviour
 
         //each 1sec
         if (this.ObjectTime > 1f)
-        {
-            if (!GameManager.IdleState)
-            {
-                //
-            }
-
+        {            
             //counterlogic
             StartCoroutine(counterLogic());
-            
+
+            if (this.FrameN < 4 && GameManager.LooseState == false)
+            {
+                GameManager.ObjectSound = this.ObjectSound;
+                //Debug.Log(GameManager.LooseState+ "/" + this.ObjectSound);
+                UnityEngine.Debug.Log("Play: " + this.ObjectSound + "/" + GameManager.LooseState + "/" + this.FrameN);
+            }
+
+            if (this.FrameN == 4 && GameManager.HeroDirection == this.Direction)
+            {
+                AudioClip SoundForPlay = (AudioClip)Resources.Load("catch");
+                audioSource.PlayOneShot(SoundForPlay);
+                UnityEngine.Debug.Log("catch");
+            }
+
+            if (this.FrameN == 4 && GameManager.HeroDirection != this.Direction)
+            {
+                //AudioClip SoundForPlay = (AudioClip)Resources.Load("loose");
+                //audioSource.PlayOneShot(SoundForPlay);
+                //UnityEngine.Debug.Log("loose");
+            }
+
             //addframe
             this.FrameN++;
 
@@ -138,8 +171,6 @@ public class ObjectController : MonoBehaviour
 
             //zero time
             this.ObjectTime = 0;
-
-            
         }
 
     }

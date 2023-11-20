@@ -28,14 +28,6 @@ public class GameManager : MonoBehaviour
     public TMP_Text GameATxt;
     public TMP_Text GameBTxt;
 
-    [SerializeField] private Button rtButton;
-    [SerializeField] private Button rbButton;
-    [SerializeField] private Button ltButton;
-    [SerializeField] private Button lbButton;
-
-    [SerializeField] private Sprite LargeButtonPressed;
-    [SerializeField] private Sprite LargeButtonIdle;
-
     GameObject TempGO01, TempGO02, TempGO03, TempGO04;
 
     public static bool IdleState, GameState, LooseState, PauseState, EndGameState, ShowAddChar;
@@ -43,7 +35,6 @@ public class GameManager : MonoBehaviour
 
     private int RandomObject, InstObjCount, ShowAddCharEndTime, GameEndValue;
     private int GameScore;    //Score
-
 
     public static int TotalGameTime;
     public static int LostScore;
@@ -59,6 +50,8 @@ public class GameManager : MonoBehaviour
 
     public static string ObjNameToDelete;
     public static string LooseObjectName;
+
+    public static string ObjectSound;
 
     void Start()
     {
@@ -96,6 +89,7 @@ public class GameManager : MonoBehaviour
         GameplayRanges.Add(10);
         GameplayRanges.Add(15);
 
+        //when game is end
         GameEndValue = 6;
 
         InfoText.text = "Time mode. Press GAME A or B button to start game";
@@ -122,6 +116,7 @@ public class GameManager : MonoBehaviour
     {
         int RandomPair;
 
+        //pair ofobjects
         RandomPair = UnityEngine.Random.Range(0, 2);
 
         if (RandomPair == 0)
@@ -135,8 +130,6 @@ public class GameManager : MonoBehaviour
 
         objectForRender(RandomObject);
         //Debug.Log(RandomPair + "/" + RandomObject);
-
-
     }
 
 
@@ -166,8 +159,6 @@ public class GameManager : MonoBehaviour
         }
 
         //Debug.Log(GameScore +" / " + "GR1/" + GameplayRanges[1] + " GR2/" + GameplayRanges[2]);
-
-        SoundLogic("normal");
 
     }
 
@@ -221,6 +212,8 @@ public class GameManager : MonoBehaviour
                 TempGO02 = Instantiate(gameObj02);
                 TempGO02.name = TempName;
 
+                //Debug.Log(TempName + " was created!");
+
                 break;
             case 3:
                 
@@ -228,6 +221,8 @@ public class GameManager : MonoBehaviour
 
                 TempGO03 = Instantiate(gameObj03);
                 TempGO03.name = TempName;
+
+                //Debug.Log(TempName + " was created!");
 
                 break;
             case 4:
@@ -237,10 +232,15 @@ public class GameManager : MonoBehaviour
                 TempGO04 = Instantiate(gameObj04);
                 TempGO04.name = TempName;
 
+                //Debug.Log(TempName + " was created!");
+
                 break;
             default:
                 break;
+
         }
+
+        
 
         //show additional sharacter
         if (ShowAddCharEndTime > TotalGameTime)
@@ -269,7 +269,6 @@ public class GameManager : MonoBehaviour
             IdleLogic();
         }
 
-
         if (GameState == true && LooseState == false)
         {
             GameTime = GameTime + Time.unscaledDeltaTime;
@@ -289,6 +288,9 @@ public class GameManager : MonoBehaviour
             {
 
                 GameLogic();
+
+                //Debug.Log("GM ObjectSound: " + ObjectSound);
+                SoundLogic(ObjectSound);
 
                 TotalGameTime++;
 
@@ -310,10 +312,11 @@ public class GameManager : MonoBehaviour
             EndGameLogic();
         }
         
-
         //Debug.Log(HeroDirection +"/"+ FinalObjectFrame[0]);
 
     }
+
+
 
     void EndGameLogic()
     {
@@ -343,7 +346,9 @@ public class GameManager : MonoBehaviour
         if (GameTime > 1f)
         {
             HeroDirection = UnityEngine.Random.Range(0, 4);
+
             GameLogic();
+
             TotalGameTime++;
 
             if (TotalGameTime % 10 == 0)
@@ -394,8 +399,6 @@ public class GameManager : MonoBehaviour
                 GameScore++; //add score
 
                 ObjectCollected = false; //reset collected status
-
-                SoundLogic("catch");
             }
             else
             {
@@ -427,26 +430,13 @@ public class GameManager : MonoBehaviour
 
     public void SoundLogic(string SoundEvent)
     {
-        AudioClip Tone01 = (AudioClip)Resources.Load("tone01");
-        AudioClip Tone02 = (AudioClip)Resources.Load("tone02");
-
-        AudioClip Catch01 = (AudioClip)Resources.Load("catch");
-
-        if (SoundEvent == "normal")
+        if (SoundEvent != null)
         {
-            if (TotalGameTime % 2 == 0)
-            {
-                audioSource.PlayOneShot(Tone01);
-            }
-            else
-            {
-                audioSource.PlayOneShot(Tone02);
-            }
-        }
+            AudioClip Tone01 = (AudioClip)Resources.Load(SoundEvent);
 
-        if (SoundEvent == "catch")
-        {
-            audioSource.PlayOneShot(Catch01);
+            audioSource.PlayOneShot(Tone01);
+
+            //Debug.Log(Tone01);
         }
 
     }
@@ -511,6 +501,8 @@ public class GameManager : MonoBehaviour
             GameScore = 0;
             LostScore = 0;
 
+            ObjectSound = null;
+
             //game type
             if (GameType == "A")
             {
@@ -560,94 +552,9 @@ public class GameManager : MonoBehaviour
         //Debug.Log("After / " + GameState +"/"+ IdleState +"/"+ PauseState);
     }
 
-    public void HeroLeftTop()
-    {
-        if (GameState)
-        {
-            HeroDirection = 0; //left top
-            ltButton.image.sprite = LargeButtonPressed;
-        }
-
-    }
-
-    public void HeroLeftBottom()
-    {
-        if (GameState)
-        {
-            HeroDirection = 1; //left bottom
-            lbButton.image.sprite = LargeButtonPressed;
-        }
-    }
-
-    public void HeroRightTop()
-    {
-        if(GameState)
-        {
-            HeroDirection = 3; //right top    
-            rtButton.image.sprite = LargeButtonPressed;
-        }
-
-    }
-
-    public void HeroRightBottom()
-    {
-        if (GameState)
-        {
-            HeroDirection = 2; //right bottom
-            rbButton.image.sprite = LargeButtonPressed;
-        }
-    }
-
 
     void ButtonInput()
     {
-        if (GameState == true)
-        {
-            if (Input.GetKeyDown(KeyCode.Q))
-            {
-                HeroLeftTop();
-            }
-            else
-            {
-                ltButton.image.sprite = LargeButtonIdle;
-            }
-
-            if (Input.GetKeyDown(KeyCode.A))
-            {
-                HeroLeftBottom();
-            }
-            else
-            {
-                lbButton.image.sprite = LargeButtonIdle;
-            }
-
-            if (Input.GetKeyDown(KeyCode.S))
-            {
-                HeroRightBottom();
-            }
-            else
-            {
-                rbButton.image.sprite = LargeButtonIdle;
-            }
-
-            if (Input.GetKeyDown(KeyCode.W))
-            {
-                HeroRightTop();
-            }
-            else
-            {
-                rtButton.image.sprite = LargeButtonIdle;
-            }
-
-        }
-
-
-        if (Input.GetKeyDown(KeyCode.Return))
-        {
-                       
-            //PauseState = false;
-            //Debug.Log("GameState" + GameState +"/"+ PauseState);
-        }
 
         if (Input.GetKeyDown(KeyCode.Escape))
         {

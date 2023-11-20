@@ -295,6 +295,17 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 134312340}
   m_CullTransparentMesh: 1
+--- !u!114 &146154329 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3722459193446619947, guid: 00f21b67309474641b28ae8b8218382a, type: 3}
+  m_PrefabInstance: {fileID: 1426087503}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f3ea491dfd19ab041960316e91fb96e9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &189113358
 GameObject:
   m_ObjectHideFlags: 0
@@ -1649,7 +1660,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -0.000061035156, y: -22}
+  m_AnchoredPosition: {x: 0, y: -22}
   m_SizeDelta: {x: 0.000091553, y: 44}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &592470872
@@ -2578,7 +2589,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 5.199524, y: 0}
+  m_AnchoredPosition: {x: 5.199463, y: 0}
   m_SizeDelta: {x: -9.601, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1182066659
@@ -2796,8 +2807,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1542923694}
-        m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
+      - m_Target: {fileID: 146154329}
+        m_TargetAssemblyTypeName: HeroController, Assembly-CSharp
         m_MethodName: HeroRightBottom
         m_Mode: 1
         m_Arguments:
@@ -3252,6 +3263,30 @@ PrefabInstance:
       propertyPath: m_Name
       value: hero
       objectReference: {fileID: 0}
+    - target: {fileID: 3722459193446619947, guid: 00f21b67309474641b28ae8b8218382a, type: 3}
+      propertyPath: lbButton
+      value: 
+      objectReference: {fileID: 1574123675}
+    - target: {fileID: 3722459193446619947, guid: 00f21b67309474641b28ae8b8218382a, type: 3}
+      propertyPath: ltButton
+      value: 
+      objectReference: {fileID: 1513521708}
+    - target: {fileID: 3722459193446619947, guid: 00f21b67309474641b28ae8b8218382a, type: 3}
+      propertyPath: rbButton
+      value: 
+      objectReference: {fileID: 1259585315}
+    - target: {fileID: 3722459193446619947, guid: 00f21b67309474641b28ae8b8218382a, type: 3}
+      propertyPath: rtButton
+      value: 
+      objectReference: {fileID: 1501801224}
+    - target: {fileID: 3722459193446619947, guid: 00f21b67309474641b28ae8b8218382a, type: 3}
+      propertyPath: LargeButtonIdle
+      value: 
+      objectReference: {fileID: 1384965661, guid: 9a6e267368d6b3044b950c4760459116, type: 3}
+    - target: {fileID: 3722459193446619947, guid: 00f21b67309474641b28ae8b8218382a, type: 3}
+      propertyPath: LargeButtonPressed
+      value: 
+      objectReference: {fileID: -1816633455, guid: 9a6e267368d6b3044b950c4760459116, type: 3}
     - target: {fileID: 5264274581436362766, guid: 00f21b67309474641b28ae8b8218382a, type: 3}
       propertyPath: m_LocalPosition.x
       value: 1.095
@@ -3449,8 +3484,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1542923694}
-        m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
+      - m_Target: {fileID: 146154329}
+        m_TargetAssemblyTypeName: HeroController, Assembly-CSharp
         m_MethodName: HeroRightTop
         m_Mode: 1
         m_Arguments:
@@ -3593,8 +3628,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1542923694}
-        m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
+      - m_Target: {fileID: 146154329}
+        m_TargetAssemblyTypeName: HeroController, Assembly-CSharp
         m_MethodName: HeroLeftTop
         m_Mode: 1
         m_Arguments:
@@ -3973,12 +4008,6 @@ MonoBehaviour:
   InfoText: {fileID: 1982340330}
   GameATxt: {fileID: 1563869536}
   GameBTxt: {fileID: 134312342}
-  rtButton: {fileID: 1501801224}
-  rbButton: {fileID: 1259585315}
-  ltButton: {fileID: 1513521708}
-  lbButton: {fileID: 1574123675}
-  LargeButtonPressed: {fileID: -1816633455, guid: 9a6e267368d6b3044b950c4760459116, type: 3}
-  LargeButtonIdle: {fileID: 1384965661, guid: 9a6e267368d6b3044b950c4760459116, type: 3}
 --- !u!4 &1542923695
 Transform:
   m_ObjectHideFlags: 0
@@ -4332,8 +4361,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1542923694}
-        m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
+      - m_Target: {fileID: 146154329}
+        m_TargetAssemblyTypeName: HeroController, Assembly-CSharp
         m_MethodName: HeroLeftBottom
         m_Mode: 1
         m_Arguments:
@@ -5280,7 +5309,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: 25.5802, y: 24.940002}
+  m_AnchoredPosition: {x: 25.580078, y: 24.939941}
   m_SizeDelta: {x: -1368.8396, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1982340330

@@ -53,6 +53,8 @@ public class GameManager : MonoBehaviour
 
     public static string ObjectSound;
 
+    public static List<string> soundQueue = new List<string>(); //for random order
+
     void Start()
     {
         //for random order
@@ -140,6 +142,10 @@ public class GameManager : MonoBehaviour
         //IntroGameplay();
 
         //random every odd sec
+
+        IntroGameplay();
+       //RandomObjectRender();
+        /*
         if (GameScore >= 0 && GameScore <= GameplayRanges[0] && TotalGameTime % 4 == 0)
         {
             RandomObjectRender();
@@ -157,7 +163,7 @@ public class GameManager : MonoBehaviour
             RandomObjectRender();
             //Debug.Log("Range 3");
         }
-
+        */
         //Debug.Log(GameScore +" / " + "GR1/" + GameplayRanges[1] + " GR2/" + GameplayRanges[2]);
 
     }
@@ -165,22 +171,23 @@ public class GameManager : MonoBehaviour
     void IntroGameplay()
     {
 
-        if (TotalGameTime == 1)
+        if (TotalGameTime == 0)
         {
             objectForRender(objectsOrder[0]);
+            //Debug.Log("Render 1");
         }
 
-        if (TotalGameTime == 7)
+        if (TotalGameTime == 6)
         {
             objectForRender(objectsOrder[1]);
         }
 
-        if (TotalGameTime == 12)
+        if (TotalGameTime == 11)
         {
             objectForRender(objectsOrder[2]);
         }
 
-        if (TotalGameTime == 17)
+        if (TotalGameTime == 16)
         {
             objectForRender(objectsOrder[3]);
         }
@@ -240,8 +247,6 @@ public class GameManager : MonoBehaviour
 
         }
 
-        
-
         //show additional sharacter
         if (ShowAddCharEndTime > TotalGameTime)
         {
@@ -289,8 +294,23 @@ public class GameManager : MonoBehaviour
 
                 GameLogic();
 
+                Debug.Log("Sounds in Queue: " + soundQueue.Count + "/ TGT: " + TotalGameTime);
+                string q1 = "";
+                for (int i = 0; i < soundQueue.Count; i++)
+                {
+                    
+                    q1 = q1 +", "+ soundQueue[i];
+                    Debug.Log("Sound:" + q1);
+                }
+
+                if (soundQueue.Count > 0)
+                {
+                    soundQueue.RemoveAt(soundQueue.Count - 1);
+                }
+                
+
                 //Debug.Log("GM ObjectSound: " + ObjectSound);
-                SoundLogic(ObjectSound);
+                //SoundLogic(ObjectSound);
 
                 TotalGameTime++;
 
@@ -348,6 +368,8 @@ public class GameManager : MonoBehaviour
             HeroDirection = UnityEngine.Random.Range(0, 4);
 
             GameLogic();
+
+            //soundQueue.RemoveAt(soundQueue.Count - 1);
 
             TotalGameTime++;
 
@@ -418,6 +440,11 @@ public class GameManager : MonoBehaviour
             //Debug.Log("LostScore is " + LostScore + "/" + ShowAddChar + "/" + EndGameState);
 
             //Debug.Log("ObjNameToDelete is " + ObjNameToDelete);
+
+            if (soundQueue.Count > 0)
+            {
+                soundQueue.RemoveAt(soundQueue.Count - 1);
+            }
 
             GameObject toDestroy = GameObject.Find(ObjNameToDelete);
             
@@ -490,6 +517,11 @@ public class GameManager : MonoBehaviour
     {
             if (!PauseState)
             {
+
+            GameTime = 0;
+            TotalGameTime = 0;
+            ShowAddCharEndTime = 0;
+
             GameState = true;
 
             IdleState = false;
@@ -516,10 +548,6 @@ public class GameManager : MonoBehaviour
             }
 
             MissText.enabled = false; //hide miss text
-
-            GameTime = 0;
-            TotalGameTime = 0;
-            ShowAddCharEndTime = 0;
 
             HeroDirection = 2; // bottom right
 

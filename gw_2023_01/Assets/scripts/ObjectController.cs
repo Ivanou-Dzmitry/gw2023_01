@@ -23,13 +23,8 @@ public class ObjectController : MonoBehaviour
             sprite.gameObject.SetActive(false);
 
         this.FrameN = 0;
+        //UnityEngine.Debug.Log("RENDER START");
 
-        if (GameManager.LooseState == false)
-        {
-            GameManager.ObjectSound = this.ObjectSound;
-        }
-
-        //UnityEngine.Debug.Log("sfdg");
     }
 
 
@@ -47,9 +42,9 @@ public class ObjectController : MonoBehaviour
             GameManager.ObjectCollected = true;
             GameManager.ObjNameToDelete = this.name;
         }
-
-        //lost object
-        if (this.FrameN == 5 && GameManager.IdleState == false)
+   
+            //lost object
+            if (this.FrameN == 5 && GameManager.IdleState == false)
         {
             GameManager.ObjectCollected = false;
             GameManager.ObjNameToDelete = this.name;
@@ -59,8 +54,11 @@ public class ObjectController : MonoBehaviour
             GameManager.ObjectSound = null;
         }
 
-        //last frame
-        if (this.FrameN == 7 && GameManager.IdleState == false)
+
+
+
+            //last frame
+            if (this.FrameN == 7 && GameManager.IdleState == false)
         {
             GameManager.LooseState = false;
             //Debug.Log("LooseState: " + GameManager.LooseState);
@@ -136,30 +134,11 @@ public class ObjectController : MonoBehaviour
 
         //each 1sec
         if (this.ObjectTime > 1f)
-        {            
+        {
+
+
             //counterlogic
             StartCoroutine(counterLogic());
-
-            if (this.FrameN < 4 && GameManager.LooseState == false)
-            {
-                GameManager.ObjectSound = this.ObjectSound;
-                //Debug.Log(GameManager.LooseState+ "/" + this.ObjectSound);
-                UnityEngine.Debug.Log("Play: " + this.ObjectSound + "/" + GameManager.LooseState + "/" + this.FrameN);
-            }
-
-            if (this.FrameN == 4 && GameManager.HeroDirection == this.Direction)
-            {
-                AudioClip SoundForPlay = (AudioClip)Resources.Load("catch");
-                audioSource.PlayOneShot(SoundForPlay);
-                UnityEngine.Debug.Log("catch");
-            }
-
-            if (this.FrameN == 4 && GameManager.HeroDirection != this.Direction)
-            {
-                //AudioClip SoundForPlay = (AudioClip)Resources.Load("loose");
-                //audioSource.PlayOneShot(SoundForPlay);
-                //UnityEngine.Debug.Log("loose");
-            }
 
             //addframe
             this.FrameN++;

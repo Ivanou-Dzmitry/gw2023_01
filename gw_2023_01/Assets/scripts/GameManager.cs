@@ -16,9 +16,6 @@ public class GameManager : MonoBehaviour
     public GameObject gameObj02;
     public GameObject gameObj03;
     public GameObject gameObj04;
-    public GameObject MenuPanel;
-
-    public AudioSource audioSource;
 
     //txtblock
     public TMP_Text counterText;
@@ -30,14 +27,15 @@ public class GameManager : MonoBehaviour
 
     GameObject TempGO01, TempGO02, TempGO03, TempGO04;
 
-    public static bool IdleState, GameState, LooseState, PauseState, EndGameState, ShowAddChar;
+    public static bool IdleState, GameState, LooseState, PauseState, EndGameState, ShowAddChar, CatchState;
     public static bool ObjectCollected;
 
     private int RandomObject, InstObjCount, ShowAddCharEndTime, GameEndValue;
-    private int GameScore;    //Score
+    public static int GameScore;    //Score
+    public static int LostScore;
 
     public static int TotalGameTime;
-    public static int LostScore;
+    
     public static int HeroDirection; //player direction
 
     private float GameTime;
@@ -55,7 +53,20 @@ public class GameManager : MonoBehaviour
 
     public static List<string> soundQueue = new List<string>(); //for random order
 
+    private AudioClip _clip;
+
     void Start()
+    {   
+        //Set Framerate
+        Application.targetFrameRate = 15;
+        
+        //set resoluton
+        Screen.SetResolution(1920, 1080, true);
+
+        GameInit();
+    }
+
+    void GameInit()
     {
         //for random order
         randomGameObjOrder();
@@ -66,8 +77,7 @@ public class GameManager : MonoBehaviour
         EndGameState = false;
         ShowAddChar = false;
         LooseState = false;
-
-        MenuPanel.SetActive(false);
+        CatchState = false;
 
         counterText.text = "0"; //start count
 
@@ -77,14 +87,9 @@ public class GameManager : MonoBehaviour
 
         HeroDirection = 2; // bottom right
 
-        Application.targetFrameRate = 15;
-
         TotalGameTime = 0;
         GameScore = 0;
         LostScore = 0;
-
-        //set resoluton
-        Screen.SetResolution(1920, 1080, true);
 
         //initial Gameplay Ranges
         GameplayRanges.Add(5);
@@ -95,7 +100,6 @@ public class GameManager : MonoBehaviour
         GameEndValue = 6;
 
         InfoText.text = "Time mode. Press GAME A or B button to start game";
-
     }
 
 
@@ -143,9 +147,9 @@ public class GameManager : MonoBehaviour
 
         //random every odd sec
 
-        IntroGameplay();
+        //IntroGameplay();
        //RandomObjectRender();
-        /*
+        
         if (GameScore >= 0 && GameScore <= GameplayRanges[0] && TotalGameTime % 4 == 0)
         {
             RandomObjectRender();
@@ -163,7 +167,7 @@ public class GameManager : MonoBehaviour
             RandomObjectRender();
             //Debug.Log("Range 3");
         }
-        */
+       
         //Debug.Log(GameScore +" / " + "GR1/" + GameplayRanges[1] + " GR2/" + GameplayRanges[2]);
 
     }
@@ -199,6 +203,9 @@ public class GameManager : MonoBehaviour
     {
         InstObjCount++;
 
+        if (!LooseState)
+        {
+
         switch (Object)
         {
             case 1:
@@ -209,6 +216,11 @@ public class GameManager : MonoBehaviour
                 TempGO01 = Instantiate(gameObj01);     
                 TempGO01.name = TempName;
 
+                if (!soundQueue.Contains("tone01"))
+                {
+                    soundQueue.Add("tone01");
+                }
+                        
                 //Debug.Log(TempName + " was created!");
 
                 break;
@@ -219,9 +231,14 @@ public class GameManager : MonoBehaviour
                 TempGO02 = Instantiate(gameObj02);
                 TempGO02.name = TempName;
 
-                //Debug.Log(TempName + " was created!");
+                if (!soundQueue.Contains("tone02"))
+                {
+                    soundQueue.Add("tone02");
+                }
 
-                break;
+                    //Debug.Log(TempName + " was created!");
+
+                    break;
             case 3:
                 
                 TempName = "object3_" + InstObjCount.ToString();
@@ -229,9 +246,14 @@ public class GameManager : MonoBehaviour
                 TempGO03 = Instantiate(gameObj03);
                 TempGO03.name = TempName;
 
-                //Debug.Log(TempName + " was created!");
+                    if (!soundQueue.Contains("tone03"))
+                    {
+                        soundQueue.Add("tone03");
+                    }
 
-                break;
+                    //Debug.Log(TempName + " was created!");
+
+                    break;
             case 4:
                 
                 TempName = "object4_" + InstObjCount.ToString();
@@ -239,9 +261,14 @@ public class GameManager : MonoBehaviour
                 TempGO04 = Instantiate(gameObj04);
                 TempGO04.name = TempName;
 
-                //Debug.Log(TempName + " was created!");
+                    if (!soundQueue.Contains("tone04"))
+                    {
+                        soundQueue.Add("tone04");
+                    }
 
-                break;
+                    //Debug.Log(TempName + " was created!");
+
+                    break;
             default:
                 break;
 
@@ -252,10 +279,11 @@ public class GameManager : MonoBehaviour
         {
             ShowAddChar = true;
             //Debug.Log("Render Add");
-        }
-        else
+        } else
         {
             ShowAddChar = false;
+        }
+
         }
     }
 
@@ -268,71 +296,54 @@ public class GameManager : MonoBehaviour
         //check speed
         SpeedController();
 
-        //show clock on idle
+        //show clock on IDLE state
         if (IdleState)
         {
             IdleLogic();
         }
 
-        if (GameState == true && LooseState == false)
-        {
-            GameTime = GameTime + Time.unscaledDeltaTime;
-
-            InfoText.gameObject.SetActive(false);
-
-            ScoreCounter();
-
-            //max lost value is 6
-            if (LostScore >= GameEndValue)
-            {
-                EndGameState = true;
-            }
-
-            //1 sec
-            if (GameTime > 1f) 
-            {
-
-                GameLogic();
-
-                Debug.Log("Sounds in Queue: " + soundQueue.Count + "/ TGT: " + TotalGameTime);
-                string q1 = "";
-                for (int i = 0; i < soundQueue.Count; i++)
-                {
-                    
-                    q1 = q1 +", "+ soundQueue[i];
-                    Debug.Log("Sound:" + q1);
-                }
-
-                if (soundQueue.Count > 0)
-                {
-                    soundQueue.RemoveAt(soundQueue.Count - 1);
-                }
-                
-
-                //Debug.Log("GM ObjectSound: " + ObjectSound);
-                //SoundLogic(ObjectSound);
-
-                TotalGameTime++;
-
-                // each 10 sec show second sharacter
-                if (TotalGameTime % 10 == 0)
-                {
-                    int RandomAddCharTime;
-                    RandomAddCharTime = UnityEngine.Random.Range(4, 6);
-
-                    ShowAddCharEndTime = TotalGameTime + RandomAddCharTime;
-                }
-
-                GameTime = 0;
-            }
-        }
-
+        //END GAME
         if (EndGameState)
         {
             EndGameLogic();
         }
-        
-        //Debug.Log(HeroDirection +"/"+ FinalObjectFrame[0]);
+
+        //GAME
+        if (GameState)
+        {
+            GameTime = GameTime + Time.unscaledDeltaTime;
+
+            ScoreCounter();
+
+            //1 sec
+            if (GameTime > 1f) 
+            {
+                GameLogic();
+
+                string q1 = "";
+                for (int i = 0; i < soundQueue.Count; i++)
+                {
+                    q1 = q1 + ", " + soundQueue[i];
+                    //Debug.Log("Sound:" + q1 + "/ " + TotalGameTime);
+                }
+
+                Debug.Log("Q: " + q1 + "/" + LooseState);
+
+                if (soundQueue.Count > 0 && !LooseState)
+                {
+                    _clip = (AudioClip)Resources.Load(soundQueue[0]);
+                    SoundManager.Instance.PlaySound(_clip);
+                    soundQueue.RemoveAt(0);
+                }
+
+
+                TotalGameTime++;
+
+                AdditionalCharacterCall(TotalGameTime);
+
+                GameTime = 0;
+            }
+        }
 
     }
 
@@ -340,12 +351,13 @@ public class GameManager : MonoBehaviour
 
     void EndGameLogic()
     {
+
         GameState = false;
         PauseState = false;
-
         LooseState = false;
 
         InfoText.text = "Game Over! Press GAME A or B button to start new game.";
+        
         InfoText.gameObject.SetActive(true);
     }
 
@@ -369,27 +381,33 @@ public class GameManager : MonoBehaviour
 
             GameLogic();
 
-            //soundQueue.RemoveAt(soundQueue.Count - 1);
-
             TotalGameTime++;
 
-            if (TotalGameTime % 10 == 0)
-            {
-                int RandomAddCharTime;
-                RandomAddCharTime = UnityEngine.Random.Range(4, 6);
+            AdditionalCharacterCall(TotalGameTime);
 
-                ShowAddCharEndTime = TotalGameTime + RandomAddCharTime;
-            }
             GameTime = 0;
         }
     }
 
-    public void ScoreCounter()
+    void AdditionalCharacterCall(int Time)
     {
-        //TotalGameTime +   + "/" + InstObjCount.ToString()
+        // each 10 sec show second sharacter
+
+
+        if (Time % 10 == 0)
+        {
+            int RandomAddCharTime;
+            RandomAddCharTime = UnityEngine.Random.Range(4, 6);
+
+            ShowAddCharEndTime = TotalGameTime + RandomAddCharTime;
+        }
+    }
+
+    void ScoreOutput()
+    {
         if (GameScore < 100)
         {
-            if (!IdleState){ counterText.text = GameScore.ToString();  } //for idle
+            if (!IdleState) { counterText.text = GameScore.ToString(); } //for idle
         }
         else
         {
@@ -409,63 +427,23 @@ public class GameManager : MonoBehaviour
             {
                 ScoreSecondPartString = "0" + ScoreSecondPartString;
             }
-                //need because this used for clock
-                counterText.text = " " + ScoreFirstPartString + " " + ScoreSecondPartString;
+            //need because this used for clock
+            counterText.text = " " + ScoreFirstPartString + " " + ScoreSecondPartString;
         }
-        
-
-        if (ObjNameToDelete != null)
-        {
-            if (ObjectCollected)
-            {
-                GameScore++; //add score
-
-                ObjectCollected = false; //reset collected status
-            }
-            else
-            {
-                if (!IdleState) { MissText.enabled = true; } //show miss text NOT in idle
-
-                if (ShowAddChar == true)
-                {
-                    LostScore++; //if we see add char
-                }
-                else
-                {
-                    LostScore = LostScore + 2; //if we cant see add shar
-                }
-
-            }
-
-            //Debug.Log("LostScore is " + LostScore + "/" + ShowAddChar + "/" + EndGameState);
-
-            //Debug.Log("ObjNameToDelete is " + ObjNameToDelete);
-
-            if (soundQueue.Count > 0)
-            {
-                soundQueue.RemoveAt(soundQueue.Count - 1);
-            }
-
-            GameObject toDestroy = GameObject.Find(ObjNameToDelete);
-            
-            Destroy(toDestroy);
-
-            ObjNameToDelete = null;
-        }
-        
     }
 
-    public void SoundLogic(string SoundEvent)
+    public void ScoreCounter()
     {
-        if (SoundEvent != null)
+        //TotalGameTime +   + "/" + InstObjCount.ToString()
+
+        ScoreOutput();
+
+        //max lost value is 6
+        if (LostScore >= GameEndValue)
         {
-            AudioClip Tone01 = (AudioClip)Resources.Load(SoundEvent);
-
-            audioSource.PlayOneShot(Tone01);
-
-            //Debug.Log(Tone01);
+            EndGameState = true;
         }
-
+        
     }
 
 
@@ -518,6 +496,8 @@ public class GameManager : MonoBehaviour
             if (!PauseState)
             {
 
+            soundQueue.Clear();
+
             GameTime = 0;
             TotalGameTime = 0;
             ShowAddCharEndTime = 0;
@@ -556,7 +536,9 @@ public class GameManager : MonoBehaviour
             Destroy(TempGO03);
             Destroy(TempGO04);
 
-            }
+            InfoText.gameObject.SetActive(false);
+
+        }
 
     }
 
@@ -567,7 +549,7 @@ public class GameManager : MonoBehaviour
         if (GameState == false && IdleState == false && PauseState == true)
         {
             PauseState = false;
-            GameState = true;
+            GameState = true;     
         } else if (GameState == true && IdleState == false && PauseState == false)
         {
             PauseState = true;
@@ -590,15 +572,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public void OpenMenu()
-    {
-        if (MenuPanel != null)
-        {
-            bool isActive = MenuPanel.activeSelf;
-            MenuPanel.SetActive(!isActive);
-        }
-        //Debug.Log("HERE");
-    }
+
 
     void SpeedController()
     {

@@ -58,12 +58,14 @@
     <Analyzer Include="C:\Program Files\Unity\Hub\Editor\2022.3.10f1\Editor\Data\Tools\Unity.SourceGenerators\Unity.Properties.SourceGenerator.dll" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\scripts\SceneLoader.cs" />
     <Compile Include="Assets\scripts\ObjectController.cs" />
     <Compile Include="Assets\scripts\GameManager.cs" />
-    <Compile Include="Assets\AddCharController.cs" />
+    <Compile Include="Assets\scripts\SoundManager.cs" />
+    <Compile Include="Assets\scripts\LostCountController.cs" />
     <Compile Include="Assets\scripts\HeroController.cs" />
-    <Compile Include="Assets\LostCountController.cs" />
-    <Compile Include="Assets\SceneLoader.cs" />
+    <Compile Include="Assets\scripts\AddCharController.cs" />
+    <Compile Include="Assets\scripts\VolumeSlider.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />

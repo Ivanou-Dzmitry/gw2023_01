@@ -9,7 +9,7 @@ public class ObjectController : MonoBehaviour
     private int FrameN;
     private float ObjectTime;
 
-    public AudioSource audioSource;
+    private AudioClip _clip;
 
     //direction of player for win
     [SerializeField] private int Direction;
@@ -23,8 +23,13 @@ public class ObjectController : MonoBehaviour
             sprite.gameObject.SetActive(false);
 
         this.FrameN = 0;
-        //UnityEngine.Debug.Log("RENDER START");
 
+        if (!GameManager.soundQueue.Contains(this.ObjectSound))
+        {
+            GameManager.soundQueue.Add(this.ObjectSound);
+        }
+
+        //UnityEngine.Debug.Log("RENDER START");
     }
 
 
@@ -33,44 +38,57 @@ public class ObjectController : MonoBehaviour
         ObjectFrames[this.FrameN].gameObject.SetActive(true);
     }
 
-    IEnumerator counterLogic()
+    void counterLogic()
     {
-
+      
         //try to add score
         if (this.FrameN == 4 && GameManager.HeroDirection == this.Direction)
         {
-            GameManager.ObjectCollected = true;
-            GameManager.ObjNameToDelete = this.name;
+            GameManager.soundQueue.Clear();
+
+            _clip = (AudioClip)Resources.Load("catch");
+            SoundManager.Instance.PlaySound(_clip);
+
+            GameManager.GameScore++;
+
+            Destroy(this.gameObject);
         }
-   
-            //lost object
-            if (this.FrameN == 5 && GameManager.IdleState == false)
+
+        if (this.FrameN == 4 && GameManager.HeroDirection != this.Direction && !GameManager.IdleState)
         {
-            GameManager.ObjectCollected = false;
-            GameManager.ObjNameToDelete = this.name;
-            GameManager.LooseObjectName = this.name;
             GameManager.LooseState = true;
-            //Debug.Log("Loose: " + GameManager.LooseObjectName);
-            GameManager.ObjectSound = null;
+            GameManager.soundQueue.Clear();
+
+            _clip = (AudioClip)Resources.Load("loose");
+            SoundManager.Instance.PlaySound(_clip);
+
+            if (GameManager.ShowAddChar)
+            {
+                GameManager.LostScore++; //if we see add char
+            }
+            else
+            {
+                GameManager.LostScore = GameManager.LostScore + 2; //if we cant see add shar
+            }
+
+            GameManager.LooseObjectName = this.name;
+            
+            //UnityEngine.Debug.Log("LOOSE!" + this.FrameN);
         }
 
 
-
-
-            //last frame
-            if (this.FrameN == 7 && GameManager.IdleState == false)
+        //last frame
+        if (this.FrameN == 7 && !GameManager.IdleState)
         {
             GameManager.LooseState = false;
-            //Debug.Log("LooseState: " + GameManager.LooseState);
+            Destroy(this.gameObject);
         }
 
-        if (this.FrameN == 7 && GameManager.IdleState == true)
+        if (this.FrameN == 7 && GameManager.IdleState)
         {
             Destroy(this.gameObject);
         }
 
-
-        yield return null;
     }
 
 
@@ -86,35 +104,15 @@ public class ObjectController : MonoBehaviour
 
     void Update()
     {
-        //for all
-        if (GameManager.GameState == true && GameManager.LooseState == false)
-        {
-            objectLogic();
-            //Debug.Log("Stop here 1");
-        }
 
-        //for loose
-        if (GameManager.LooseState == true && GameManager.LooseObjectName == this.name)
-        {
-            objectLogic();
-            //Debug.Log("Stop here 2");
-        }
+        objectLogic();
 
-        if (GameManager.EndGameState == true)
+        //destroy other
+        if (GameManager.EndGameState == true && GameManager.LooseObjectName != this.name)
         {
             hideObect();
-            //zero time
             this.FrameN = 0;
             Destroy(this.gameObject);
-
-            //Debug.Log("EndGameState: " + GameManager.EndGameState);
-        }
-
-        //for idle
-        if (GameManager.IdleState == true)
-        {
-            objectLogic();
-            //Debug.Log("Stop here 3");
         }
 
     }
@@ -137,11 +135,26 @@ public class ObjectController : MonoBehaviour
         {
 
 
-            //counterlogic
-            StartCoroutine(counterLogic());
 
-            //addframe
-            this.FrameN++;
+            //counterlogic
+            counterLogic();
+
+            //add frame only for loose
+            if (GameManager.LooseState && GameManager.LooseObjectName == this.name)
+            {
+                this.FrameN++;
+            }
+
+            //add frames for all
+            if (!GameManager.LooseState)
+            {
+                this.FrameN++;
+
+                if (!GameManager.soundQueue.Contains(this.ObjectSound))
+                {
+                    GameManager.soundQueue.Add(this.ObjectSound);
+                }
+            }
 
             //Debug.Log("this.FrameN: " + this.FrameN);
 
@@ -158,12 +171,6 @@ public class ObjectController : MonoBehaviour
     {
         foreach (SpriteRenderer sprite in ObjectFrames)
             sprite.gameObject.SetActive(false);
-    }
-
-
-    private void OnDestroy()
-    {
-        StopCoroutine(counterLogic());
     }
 
 }

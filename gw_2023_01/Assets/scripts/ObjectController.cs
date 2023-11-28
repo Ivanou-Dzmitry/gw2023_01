@@ -40,12 +40,18 @@ public class ObjectController : MonoBehaviour
 
     void counterLogic()
     {
-      
+        if (this.FrameN < 4)
+        {
+            if (!GameManager.soundQueue.Contains(this.ObjectSound))
+            {
+                GameManager.soundQueue.Add(this.ObjectSound);
+            }
+        }
+
         //try to add score
         if (this.FrameN == 4 && GameManager.HeroDirection == this.Direction)
         {
-            GameManager.soundQueue.Clear();
-
+            //catch sound
             _clip = (AudioClip)Resources.Load("catch");
             SoundManager.Instance.PlaySound(_clip);
 
@@ -57,8 +63,13 @@ public class ObjectController : MonoBehaviour
         if (this.FrameN == 4 && GameManager.HeroDirection != this.Direction && !GameManager.IdleState)
         {
             GameManager.LooseState = true;
-            GameManager.soundQueue.Clear();
 
+            if (GameManager.soundQueue.Count > 0)
+            {
+                GameManager.soundQueue.RemoveAt(GameManager.soundQueue.Count - 1);
+            }
+
+            //loose sound
             _clip = (AudioClip)Resources.Load("loose");
             SoundManager.Instance.PlaySound(_clip);
 
@@ -81,6 +92,16 @@ public class ObjectController : MonoBehaviour
         if (this.FrameN == 7 && !GameManager.IdleState)
         {
             GameManager.LooseState = false;
+
+            if (GameManager.GameState)
+            {
+                if (GameManager.soundQueue.Count > 0)
+                {
+                    _clip = (AudioClip)Resources.Load(GameManager.soundQueue[0]);
+                    SoundManager.Instance.PlaySound(_clip);
+                }
+            }
+
             Destroy(this.gameObject);
         }
 
@@ -133,36 +154,34 @@ public class ObjectController : MonoBehaviour
         //each 1sec
         if (this.ObjectTime > 1f)
         {
-
-
-
             //counterlogic
-            counterLogic();
-
-            //add frame only for loose
-            if (GameManager.LooseState && GameManager.LooseObjectName == this.name)
+            if (!GameManager.PauseState)
             {
-                this.FrameN++;
+                counterLogic();
             }
-
-            //add frames for all
-            if (!GameManager.LooseState)
+            
+            //if not pause
+            if (!GameManager.PauseState)
             {
-                this.FrameN++;
-
-                if (!GameManager.soundQueue.Contains(this.ObjectSound))
+                //add frame only for loose
+                if (GameManager.LooseState && GameManager.LooseObjectName == this.name)
                 {
-                    GameManager.soundQueue.Add(this.ObjectSound);
+                    this.FrameN++;
                 }
+
+                //add frames for all
+                if (!GameManager.LooseState)
+                {
+                    this.FrameN++;
+                }
+
+                //hide previous
+                hidePrevious();
+
+                //zero time
+                this.ObjectTime = 0;
             }
 
-            //Debug.Log("this.FrameN: " + this.FrameN);
-
-            //hide previous
-            hidePrevious();
-
-            //zero time
-            this.ObjectTime = 0;
         }
 
     }

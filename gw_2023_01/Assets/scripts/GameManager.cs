@@ -333,9 +333,8 @@ public class GameManager : MonoBehaviour
                 {
                     _clip = (AudioClip)Resources.Load(soundQueue[0]);
                     SoundManager.Instance.PlaySound(_clip);
-                    soundQueue.RemoveAt(0);
+                    soundQueue.Clear();
                 }
-
 
                 TotalGameTime++;
 
@@ -344,10 +343,7 @@ public class GameManager : MonoBehaviour
                 GameTime = 0;
             }
         }
-
     }
-
-
 
     void EndGameLogic()
     {
@@ -544,13 +540,12 @@ public class GameManager : MonoBehaviour
 
     public void PauseGame()
     {
-        //Debug.Log("Before / " + GameState + "/" + IdleState + "/" + PauseState);
-
-        if (GameState == false && IdleState == false && PauseState == true)
+        if (!GameState && !IdleState && PauseState)
         {
             PauseState = false;
-            GameState = true;     
-        } else if (GameState == true && IdleState == false && PauseState == false)
+            GameState = true;
+            InfoText.gameObject.SetActive(false);
+        } else if (GameState && !IdleState && !PauseState)
         {
             PauseState = true;
             GameState = false;
@@ -558,8 +553,6 @@ public class GameManager : MonoBehaviour
             InfoText.gameObject.SetActive(true);
             InfoText.text = "Game Paused";
         }
-
-        //Debug.Log("After / " + GameState +"/"+ IdleState +"/"+ PauseState);
     }
 
 

@@ -7,12 +7,14 @@ public class SceneLoader : MonoBehaviour
 
     public GameObject MenuPanel;
 
-    public static bool OpenAtPause;
+    public static bool OpenAtPause, DiallogIsOpen;
 
     void Start()
     {
         MenuPanel.SetActive(false);
+
         OpenAtPause = false;
+        DiallogIsOpen = false;
     }
 
     public void QuitGame()
@@ -32,6 +34,7 @@ public class SceneLoader : MonoBehaviour
 
     public void OpenDiallog()
     {
+        DiallogIsOpen = true;
 
         if (GameManager.PauseState)
         {
@@ -57,5 +60,7 @@ public class SceneLoader : MonoBehaviour
         }
         
         OpenAtPause = false;
+
+        DiallogIsOpen = false;
     }
 }

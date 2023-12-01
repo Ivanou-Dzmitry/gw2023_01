@@ -60,7 +60,7 @@ public class ObjectController : MonoBehaviour
             Destroy(this.gameObject);
         }
 
-        if (this.FrameN == 4 && GameManager.HeroDirection != this.Direction && !GameManager.IdleState)
+        if (this.FrameN == 4 && GameManager.HeroDirection != this.Direction && !GameManager.IdleState && !GameManager.PauseState)
         {
             GameManager.LooseState = true;
 
@@ -153,16 +153,13 @@ public class ObjectController : MonoBehaviour
 
         //each 1sec
         if (this.ObjectTime > 1f)
-        {
-            //counterlogic
-            if (!GameManager.PauseState)
-            {
-                counterLogic();
-            }
-            
+        {            
             //if not pause
             if (!GameManager.PauseState)
             {
+                //counterlogic
+                counterLogic();
+
                 //add frame only for loose
                 if (GameManager.LooseState && GameManager.LooseObjectName == this.name)
                 {

@@ -17,6 +17,9 @@ public class GameManager : MonoBehaviour
     public GameObject gameObj03;
     public GameObject gameObj04;
 
+    public GameObject SettingsPanel;
+    public GameObject HelpPanel;
+
     //txtblock
     public TMP_Text counterText;
     public TMP_Text MissText;
@@ -61,8 +64,10 @@ public class GameManager : MonoBehaviour
         Application.targetFrameRate = 15;
         
         //set resoluton
-        Screen.SetResolution(1920, 1080, true);
+        //Screen.SetResolution(1920, 1080, true);
 
+        Screen.SetResolution((int)Screen.width, (int)Screen.height, true);
+        
         GameInit();
     }
 
@@ -434,6 +439,11 @@ public class GameManager : MonoBehaviour
 
         ScoreOutput();
 
+        if (LostScore > 0)
+        {
+            MissText.enabled = true;
+        }
+
         //max lost value is 6
         if (LostScore >= GameEndValue)
         {
@@ -445,6 +455,8 @@ public class GameManager : MonoBehaviour
 
     public void gameA()
     {
+        Debug.Log("Game A");
+
         if (!GameState)
         {
             StartGame("A");
@@ -544,24 +556,35 @@ public class GameManager : MonoBehaviour
         {
             PauseState = false;
             GameState = true;
-            InfoText.gameObject.SetActive(false);
+            //InfoText.gameObject.SetActive(false);
         } else if (GameState && !IdleState && !PauseState)
         {
             PauseState = true;
             GameState = false;
 
-            InfoText.gameObject.SetActive(true);
-            InfoText.text = "Game Paused";
+            SettingsPanel.SetActive(true);
+
+            //InfoText.gameObject.SetActive(true);
+            //InfoText.text = "Game Paused";
         }
     }
 
 
     void ButtonInput()
     {
-
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            PauseGame();
+            if (!SceneLoader.DiallogIsOpen)
+            {
+                PauseGame();
+            }
+            else
+            {
+                SettingsPanel.SetActive(false);
+                HelpPanel.SetActive(false);
+                PauseState = false;
+                GameState = true;
+            }
         }
     }
 

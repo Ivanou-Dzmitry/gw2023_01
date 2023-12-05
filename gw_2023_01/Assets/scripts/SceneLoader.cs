@@ -1,11 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class SceneLoader : MonoBehaviour
 {
 
     public GameObject MenuPanel;
+
+    public Button ExitButton;
 
     public static bool OpenAtPause, DiallogIsOpen;
 
@@ -15,6 +18,19 @@ public class SceneLoader : MonoBehaviour
 
         OpenAtPause = false;
         DiallogIsOpen = false;
+
+        //Debug.Log(Application.platform);
+
+        //turn of xit button for android
+        if (Application.platform == RuntimePlatform.WindowsEditor | Application.platform == RuntimePlatform.WindowsPlayer)
+        {
+            ExitButton.gameObject.SetActive(true);
+        } else
+        {
+            ExitButton.gameObject.SetActive(false);
+        }
+
+        
     }
 
     public void QuitGame()

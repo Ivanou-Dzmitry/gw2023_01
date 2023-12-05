@@ -13,18 +13,6 @@ public class GameAButton : MonoBehaviour
 
     public GameManager GM;
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
     private void OnMouseDown()
     {
         GM.gameA();

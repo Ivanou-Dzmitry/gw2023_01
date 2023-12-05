@@ -6,31 +6,36 @@ public class HeroController : MonoBehaviour
 {
     private Component[] ObjectFrames;
 
-    [SerializeField] private Button rtButton;
-    [SerializeField] private Button rbButton;
-    [SerializeField] private Button ltButton;
-    [SerializeField] private Button lbButton;
-
-    [SerializeField] private Sprite LargeButtonPressed;
-    [SerializeField] private Sprite LargeButtonIdle;
+    [SerializeField] private Button button_01;
+    [SerializeField] private Button button_03;
+    [SerializeField] private Button button_02;
+    [SerializeField] private Button button_04;
 
     void Start()
     {
         ObjectFrames = GetComponentsInChildren<SpriteRenderer>();
 
         hideObect();
+
+        if (Application.platform == RuntimePlatform.WindowsEditor | Application.platform == RuntimePlatform.WindowsPlayer)
+        {
+            button_01.gameObject.SetActive(false);
+            button_02.gameObject.SetActive(false);
+            button_03.gameObject.SetActive(false);
+            button_04.gameObject.SetActive(false);
+        }
+
     }
 
-    void hideObect()
+    public void hideObect()
     {
         foreach (SpriteRenderer sprite in ObjectFrames)
             sprite.gameObject.SetActive(false);
     }
 
-    void objectRender(int FrameNumber)
+    void objectRender(int HeroDirection)
     {
-
-        ObjectFrames[FrameNumber].gameObject.SetActive(true);
+        ObjectFrames[HeroDirection].gameObject.SetActive(true);
     }
 
     // Update is called once per frame
@@ -38,46 +43,40 @@ public class HeroController : MonoBehaviour
     {
         ButtonInput();
 
-        hideObect();
-
         objectRender(GameManager.HeroDirection);
     }
 
-    public void HeroLeftTop()
+    public void HeroPosition_01()
     {
         if (GameManager.GameState)
         {
             GameManager.HeroDirection = 0; //left top
-            ltButton.image.sprite = LargeButtonPressed;
         }
 
     }
 
-    public void HeroLeftBottom()
-    {
-        if (GameManager.GameState)
-        {
-            GameManager.HeroDirection = 1; //left bottom
-            lbButton.image.sprite = LargeButtonPressed;
-        }
-    }
-
-    public void HeroRightTop()
+    public void HeroPosition_02()
     {
         if (GameManager.GameState)
         {
             GameManager.HeroDirection = 3; //right top    
-            rtButton.image.sprite = LargeButtonPressed;
         }
 
     }
 
-    public void HeroRightBottom()
+    public void HeroPosition_03()
+    {
+        if (GameManager.GameState)
+        {
+            GameManager.HeroDirection = 1; //left bottom
+        }
+    }
+
+    public void HeroPosition_04()
     {
         if (GameManager.GameState)
         {
             GameManager.HeroDirection = 2; //right bottom
-            rbButton.image.sprite = LargeButtonPressed;
         }
     }
 
@@ -86,40 +85,30 @@ public class HeroController : MonoBehaviour
     {
         if (GameManager.GameState)
         {
-            if (Input.GetKeyDown(KeyCode.Q))
+            hideObect();
+
+            //pos 1
+            if (UserInput.instance.Button1Pressed)
             {
-                HeroLeftTop();
-            }
-            else
-            {
-                ltButton.image.sprite = LargeButtonIdle;
+                HeroPosition_01();
             }
 
-            if (Input.GetKeyDown(KeyCode.A))
+            //pos 2
+            if (UserInput.instance.Button2Pressed)
             {
-                HeroLeftBottom();
-            }
-            else
-            {
-                lbButton.image.sprite = LargeButtonIdle;
+                HeroPosition_02();
             }
 
-            if (Input.GetKeyDown(KeyCode.S))
+            //pos 3
+            if (UserInput.instance.Button3Pressed)
             {
-                HeroRightBottom();
-            }
-            else
-            {
-                rbButton.image.sprite = LargeButtonIdle;
+                HeroPosition_03();
             }
 
-            if (Input.GetKeyDown(KeyCode.W))
+            //pos 4
+            if (UserInput.instance.Button4Pressed)
             {
-                HeroRightTop();
-            }
-            else
-            {
-                rtButton.image.sprite = LargeButtonIdle;
+                HeroPosition_04();
             }
 
         }

@@ -35,4 +35,9 @@ public class SoundManager : MonoBehaviour
         AudioListener.volume = volume;
     }
     
+
+    public void MuteToggle(bool muted)
+    {
+        _effectsSource.mute = !_effectsSource.mute;
+    }
 }

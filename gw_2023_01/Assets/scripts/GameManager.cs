@@ -20,6 +20,8 @@ public class GameManager : MonoBehaviour
     public GameObject SettingsPanel;
     public GameObject HelpPanel;
 
+    public HeroController HC;
+
     //txtblock
     public TMP_Text counterText;
     public TMP_Text MissText;
@@ -332,7 +334,7 @@ public class GameManager : MonoBehaviour
                     //Debug.Log("Sound:" + q1 + "/ " + TotalGameTime);
                 }
 
-                Debug.Log("Q: " + q1 + "/" + LooseState);
+                //Debug.Log("Q: " + q1 + "/" + LooseState);
 
                 if (soundQueue.Count > 0 && !LooseState)
                 {
@@ -378,7 +380,10 @@ public class GameManager : MonoBehaviour
 
         if (GameTime > 1f)
         {
+            int CurrentHeroDirection = HeroDirection;
             HeroDirection = UnityEngine.Random.Range(0, 4);
+
+            if (CurrentHeroDirection != HeroDirection) { HC.hideObect();}
 
             GameLogic();
 
@@ -455,7 +460,7 @@ public class GameManager : MonoBehaviour
 
     public void gameA()
     {
-        Debug.Log("Game A");
+        //Debug.Log("Game A");
 
         if (!GameState)
         {

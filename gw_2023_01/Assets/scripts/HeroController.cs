@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -6,25 +7,11 @@ public class HeroController : MonoBehaviour
 {
     private Component[] ObjectFrames;
 
-    [SerializeField] private Button button_01;
-    [SerializeField] private Button button_03;
-    [SerializeField] private Button button_02;
-    [SerializeField] private Button button_04;
-
     void Start()
     {
         ObjectFrames = GetComponentsInChildren<SpriteRenderer>();
 
         hideObect();
-
-        if (Application.platform == RuntimePlatform.WindowsEditor | Application.platform == RuntimePlatform.WindowsPlayer)
-        {
-            button_01.gameObject.SetActive(false);
-            button_02.gameObject.SetActive(false);
-            button_03.gameObject.SetActive(false);
-            button_04.gameObject.SetActive(false);
-        }
-
     }
 
     public void hideObect()

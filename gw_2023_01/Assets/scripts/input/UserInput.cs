@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 public class UserInput : MonoBehaviour
 {
@@ -12,6 +13,7 @@ public class UserInput : MonoBehaviour
     public bool Button2Pressed { get; private set; }
     public bool Button3Pressed { get; private set; }
     public bool Button4Pressed { get; private set; }
+    public bool CancelMenu { get; private set; }
 
 
     private PlayerInput _playerInput;
@@ -20,6 +22,7 @@ public class UserInput : MonoBehaviour
     private InputAction _direction2;
     private InputAction _direction3;
     private InputAction _direction4;
+    private InputAction _cancelmenu;
 
 
     private void Awake()
@@ -40,13 +43,7 @@ public class UserInput : MonoBehaviour
         _direction2 = _playerInput.actions["Button2"];
         _direction3 = _playerInput.actions["Button3"];
         _direction4 = _playerInput.actions["Button4"];
-    }
-
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        
+        _cancelmenu = _playerInput.actions["CancelMenu"];
     }
 
     private void UpdateInputs()
@@ -55,6 +52,7 @@ public class UserInput : MonoBehaviour
         Button2Pressed = _direction2.IsPressed();
         Button3Pressed = _direction3.IsPressed();
         Button4Pressed = _direction4.IsPressed();
+        CancelMenu = _cancelmenu.WasPressedThisFrame();
     }
 
     // Update is called once per frame
@@ -62,4 +60,10 @@ public class UserInput : MonoBehaviour
     {
         UpdateInputs();
     }
+
+    public void QuitGame()
+    {
+        Application.Quit();
+    }
+
 }

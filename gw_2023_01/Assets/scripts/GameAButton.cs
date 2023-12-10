@@ -8,6 +8,8 @@ public class GameAButton : MonoBehaviour
     //GameManager GM;
     public SpriteRenderer spriteRenderer;
 
+    public GameObject playBanner;
+
     public Sprite regular;
     public Sprite mouseClicked;
 
@@ -17,6 +19,8 @@ public class GameAButton : MonoBehaviour
     {
         GM.gameA();
         spriteRenderer.sprite = mouseClicked;
+
+        playBanner.SetActive(false);
     }
 
     private void OnMouseUp()

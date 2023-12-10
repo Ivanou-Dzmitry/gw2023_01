@@ -40,6 +40,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "CancelMenu",
+                    "type": "Button",
+                    "id": "ffb06c7e-6663-4a02-ad7b-32dcbca579fe",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -84,6 +93,17 @@
                     "processors": "",
                     "groups": "Keyboard",
                     "action": "Button4",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "2c466283-4e0d-4417-aa2a-391f9f99010c",
+                    "path": "<Keyboard>/{Cancel}",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard",
+                    "action": "CancelMenu",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

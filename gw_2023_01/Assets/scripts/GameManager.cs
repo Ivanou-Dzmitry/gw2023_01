@@ -25,10 +25,11 @@ public class GameManager : MonoBehaviour
     //txtblock
     public TMP_Text counterText;
     public TMP_Text MissText;
-    public TMP_Text InfoText;
 
     public TMP_Text GameATxt;
     public TMP_Text GameBTxt;
+
+    public Button MenuButton;
 
     GameObject TempGO01, TempGO02, TempGO03, TempGO04;
 
@@ -66,7 +67,7 @@ public class GameManager : MonoBehaviour
         Application.targetFrameRate = 15;
         
         //set resoluton
-        //Screen.SetResolution(1920, 1080, true);
+        Screen.SetResolution(1920, 1080, true);
 
         Screen.SetResolution((int)Screen.width, (int)Screen.height, true);
         
@@ -105,8 +106,6 @@ public class GameManager : MonoBehaviour
 
         //when game is end
         GameEndValue = 6;
-
-        InfoText.text = "Time mode. Press GAME A or B button to start game";
     }
 
 
@@ -210,7 +209,7 @@ public class GameManager : MonoBehaviour
     {
         InstObjCount++;
 
-        if (!LooseState)
+        if (!LooseState && !PauseState)
         {
 
         switch (Object)
@@ -359,9 +358,6 @@ public class GameManager : MonoBehaviour
         PauseState = false;
         LooseState = false;
 
-        InfoText.text = "Game Over! Press GAME A or B button to start new game.";
-        
-        InfoText.gameObject.SetActive(true);
     }
 
     void IdleLogic()
@@ -497,9 +493,6 @@ public class GameManager : MonoBehaviour
             ShowAddCharEndTime = 0;
 
             EndGameState = false;
-
-            InfoText.gameObject.SetActive(true);
-            InfoText.text = "Time mode. Press GAME A or B button to start game";
         }
     }
 
@@ -548,49 +541,124 @@ public class GameManager : MonoBehaviour
             Destroy(TempGO02);
             Destroy(TempGO03);
             Destroy(TempGO04);
-
-            InfoText.gameObject.SetActive(false);
-
         }
 
     }
 
     public void PauseGame()
     {
-        if (!GameState && !IdleState && PauseState)
+
+        
+        PauseState = true;
+
+        if (GameState)
         {
-            PauseState = false;
-            GameState = true;
-            //InfoText.gameObject.SetActive(false);
-        } else if (GameState && !IdleState && !PauseState)
-        {
-            PauseState = true;
             GameState = false;
+        }
+        
 
-            SettingsPanel.SetActive(true);
+        //Debug.Log(SettingsPanel.activeSelf);
 
-            //InfoText.gameObject.SetActive(true);
-            //InfoText.text = "Game Paused";
+        //if (!GameState && !IdleState && PauseState)
+        //{
+        //    PauseState = false;
+        //    GameState = true;
+        //}
+        //else if (GameState && !IdleState && !PauseState)
+        //{
+        //    PauseState = true;
+        //    GameState = false;
+
+        //    SettingsPanel.SetActive(true);
+        //}
+
+
+
+        //if (!GameState && !IdleState && PauseState)
+        //{
+        //    PauseState = false;
+        //    GameState = true;
+        //    //InfoText.gameObject.SetActive(false);
+        //} else if (GameState && !IdleState && !PauseState)
+        //{
+        //    PauseState = true;
+        //    GameState = false;
+
+        //    SettingsPanel.SetActive(true);
+
+        //    //InfoText.gameObject.SetActive(true);
+        //    //InfoText.text = "Game Paused";
+        //}
+    }
+
+
+    public void UnPauseGame()
+    {
+        PauseState = false;
+
+        if (!IdleState)
+        {
+            GameState = true;
         }
     }
 
 
-    void ButtonInput()
+        void ButtonInput()
     {
-        if (Input.GetKeyDown(KeyCode.Escape))
+        //Debug.Log(HelpPanel.activeInHierarchy);
+
+        //Debug.Log(GameState +"/"+ PauseState +"/" +IdleState);
+
+
+        //pos 1
+        if (UserInput.instance.CancelMenu)
         {
-            if (!SceneLoader.DiallogIsOpen)
-            {
-                PauseGame();
-            }
-            else
+            //PauseGame();
+
+            if (SettingsPanel.activeInHierarchy)
             {
                 SettingsPanel.SetActive(false);
-                HelpPanel.SetActive(false);
-                PauseState = false;
-                GameState = true;
+                MenuButton.interactable = true;
+                UnPauseGame();
+                return;
             }
+
+            if (!SettingsPanel.activeInHierarchy && !HelpPanel.activeInHierarchy)
+            {
+                SettingsPanel.SetActive(true);
+                MenuButton.interactable = false;
+                PauseGame();
+            }
+
+            if (HelpPanel.activeInHierarchy)
+            {
+                HelpPanel.SetActive(false);
+                SettingsPanel.SetActive(true);
+            }
+
+
+            //if (SettingsPanel.activeInHierarchy)
+            //{
+            //    SettingsPanel.SetActive(false);
+            //    PauseState = false;
+            //    GameState = true;
+            //}
+
+
+
+            //if (!SceneLoader.DiallogIsOpen)
+            //{
+            //    PauseGame();
+            //}
+            //else
+            //{
+            //    SettingsPanel.SetActive(false);
+            //    HelpPanel.SetActive(false);
+            //    PauseState = false;
+            //    GameState = true;
+            //}
         }
+
     }
 
 

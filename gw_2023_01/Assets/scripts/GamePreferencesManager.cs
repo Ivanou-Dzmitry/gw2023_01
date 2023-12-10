@@ -1,13 +1,12 @@
 using UnityEngine.UI;
 using UnityEngine;
 using System;
+using UnityEngine.InputSystem;
 
 public class GamePreferencesManager : MonoBehaviour
 {
     [SerializeField] private Slider volumeSlider;
     [SerializeField] private Toggle soundToggle;
-
-    [SerializeField] private UserInput UI;
 
     private const string VolumeLevel = "Volume";
     private const string SoundToggle = "Sound_Toggle";

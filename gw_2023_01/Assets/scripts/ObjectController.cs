@@ -1,13 +1,14 @@
 using System.Collections;
-using System.Diagnostics;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 public class ObjectController : MonoBehaviour
 {
     private Component[] ObjectFrames;
     private int FrameN;
     private float ObjectTime;
+    private string State;
 
     private AudioClip _clip;
 
@@ -24,12 +25,7 @@ public class ObjectController : MonoBehaviour
 
         this.FrameN = 0;
 
-        if (!GameManager.soundQueue.Contains(this.ObjectSound))
-        {
-            GameManager.soundQueue.Add(this.ObjectSound);
-        }
-
-        //UnityEngine.Debug.Log("RENDER START");
+        GameManager.soundQueue.Add(this.ObjectSound);
     }
 
 
@@ -40,38 +36,17 @@ public class ObjectController : MonoBehaviour
 
     void counterLogic()
     {
-        if (this.FrameN < 4)
-        {
-            if (!GameManager.soundQueue.Contains(this.ObjectSound))
-            {
-                GameManager.soundQueue.Add(this.ObjectSound);
-            }
-        }
-
         //try to add score
         if (this.FrameN == 4 && GameManager.HeroDirection == this.Direction)
         {
-            //catch sound
-            _clip = (AudioClip)Resources.Load("catch");
-            SoundManager.Instance.PlaySound(_clip);
-
             GameManager.GameScore++;
-
             Destroy(this.gameObject);
         }
 
+        //to loose state
         if (this.FrameN == 4 && GameManager.HeroDirection != this.Direction && !GameManager.IdleState && !GameManager.PauseState)
         {
             GameManager.LooseState = true;
-
-            if (GameManager.soundQueue.Count > 0)
-            {
-                GameManager.soundQueue.RemoveAt(GameManager.soundQueue.Count - 1);
-            }
-
-            //loose sound
-            _clip = (AudioClip)Resources.Load("loose");
-            SoundManager.Instance.PlaySound(_clip);
 
             if (GameManager.ShowAddChar)
             {
@@ -83,33 +58,20 @@ public class ObjectController : MonoBehaviour
             }
 
             GameManager.LooseObjectName = this.name;
-            
-            //UnityEngine.Debug.Log("LOOSE!" + this.FrameN);
         }
-
 
         //last frame
         if (this.FrameN == 7 && !GameManager.IdleState)
         {
             GameManager.LooseState = false;
-
-            if (GameManager.GameState)
-            {
-                if (GameManager.soundQueue.Count > 0)
-                {
-                    _clip = (AudioClip)Resources.Load(GameManager.soundQueue[0]);
-                    SoundManager.Instance.PlaySound(_clip);
-                }
-            }
-
             Destroy(this.gameObject);
         }
 
+        //destroy for Idle
         if (this.FrameN == 7 && GameManager.IdleState)
         {
             Destroy(this.gameObject);
         }
-
     }
 
 
@@ -125,9 +87,9 @@ public class ObjectController : MonoBehaviour
 
     void Update()
     {
-
         objectLogic();
-
+        //render
+        
         //destroy other
         if (GameManager.EndGameState == true && GameManager.LooseObjectName != this.name)
         {
@@ -143,20 +105,70 @@ public class ObjectController : MonoBehaviour
         //Debug.Log("LATE");
     }
 
+
+    private void StateChanger()
+    {
+        if (this.FrameN < 4)
+        {
+            State = "normal"; 
+        }
+
+        if (this.FrameN == 4 && GameManager.HeroDirection != this.Direction && !GameManager.IdleState && !GameManager.PauseState)
+        {
+            GameManager.LooseState = true;
+            State = "loose";
+        }
+
+        if (this.FrameN == 4 && GameManager.HeroDirection == this.Direction)
+        {
+            State = "catch";
+            //catch sound
+
+        }
+
+        if (this.FrameN == 7 && !GameManager.IdleState && GameManager.soundQueue.Count > 0)
+        {
+            State = "after_loose";
+        }
+    }
+
+    private void SoundPlayer()
+    {
+        if (State == "catch")
+        {
+            _clip = (AudioClip)Resources.Load("catch");
+            SoundManager.Instance.PlaySound(_clip);
+        }
+
+        if (State == "normal")
+        {
+            GameManager.soundQueue.Add(this.ObjectSound);
+        }
+
+        if (State == "after_loose")
+        {
+            _clip = (AudioClip)Resources.Load(GameManager.soundQueue.Last());
+            SoundManager.Instance.PlaySound(_clip);
+        }
+    }
+
     void objectLogic()
     {
+        StateChanger();
+
+        objectRender();
+
         //time for object
         this.ObjectTime = this.ObjectTime + Time.unscaledDeltaTime;
 
-        //render
-        objectRender();
-
-        //each 1sec
-        if (this.ObjectTime > 1f)
+            //each 1sec
+            if (this.ObjectTime > 1f)
         {            
             //if not pause
             if (!GameManager.PauseState)
             {
+                SoundPlayer();
+
                 //counterlogic
                 counterLogic();
 
@@ -165,6 +177,13 @@ public class ObjectController : MonoBehaviour
                 {
                     this.FrameN++;
                 }
+
+                if (GameManager.LooseState && GameManager.LooseObjectName == this.name && this.FrameN == 5)
+                {
+                    _clip = (AudioClip)Resources.Load("loose");
+                    SoundManager.Instance.PlaySound(_clip);
+                }
+
 
                 //add frames for all
                 if (!GameManager.LooseState)

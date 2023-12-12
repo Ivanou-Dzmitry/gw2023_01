@@ -218,57 +218,19 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
             if (!ResolveActionAndBinding(out var action, out var bindingIndex))
                 return;
 
-            ResetBinding(action, bindingIndex);
 
-            //if (action.bindings[bindingIndex].isComposite)
-            //{
-            //    // It's a composite. Remove overrides from part bindings.
-            //    for (var i = bindingIndex + 1; i < action.bindings.Count && action.bindings[i].isPartOfComposite; ++i)
-            //        action.RemoveBindingOverride(i);
-            //}
-            //else
-            //{
-            //    action.RemoveBindingOverride(bindingIndex);
-            //}
+            if (action.bindings[bindingIndex].isComposite)
+            {
+                // It's a composite. Remove overrides from part bindings.
+                for (var i = bindingIndex + 1; i < action.bindings.Count && action.bindings[i].isPartOfComposite; ++i)
+                   action.RemoveBindingOverride(i);
+            }
+            else
+            {
+                action.RemoveBindingOverride(bindingIndex);
+            }
 
             UpdateBindingDisplay();
-        }
-
-        private void ResetBinding(InputAction action, int bindingIndex)
-        {
-            InputBinding newBinding = action.bindings[bindingIndex];
-
-            //Debug.Log("newBinding=" + newBinding);
-
-            string oldOverridePath = newBinding.overridePath;
-
-            //Debug.Log("oldOverridePath=" + oldOverridePath);
-
-            action.RemoveBindingOverride(bindingIndex);
-
-            //Debug.Log("bindingIndex=" + bindingIndex);
-
-            foreach (InputAction otherAction in action.actionMap.actions)
-            {
-                if (otherAction == action)
-                {
-                    continue;
-                }
-
-                for (int i = 0; i < otherAction.bindings.Count; i++)
-                {
-                    InputBinding binding = otherAction.bindings[i];
-
-                    Debug.Log("otherAction: " + otherAction.bindings[i]);
-
-                    if (binding.overridePath == newBinding.path)
-                    {
-                        otherAction.ApplyBindingOverride(i, oldOverridePath);
-
-                        //Debug.Log("oldOverridePath 2 = " + oldOverridePath);
-                    }
-                }
-            }
         }
 
         /// <summary>
@@ -346,7 +308,7 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
             if (m_RebindText != null)
             {
                 var text = !string.IsNullOrEmpty(m_RebindOperation.expectedControlType)
-                    ? $"{partName}Waiting for {m_RebindOperation.expectedControlType} input..."
+                    ? $"{partName}Waiting for {m_RebindOperation.expectedControlType} input... Press Esc to Cancel"
                     : $"{partName}Waiting for input...";
                 m_RebindText.text = text;
             }

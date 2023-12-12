@@ -17,19 +17,7 @@ public class GameManager : MonoBehaviour
     public GameObject gameObj03;
     public GameObject gameObj04;
 
-    public GameObject SettingsPanel;
-    public GameObject HelpPanel;
-
     public HeroController HC;
-
-    //txtblock
-    public TMP_Text counterText;
-    public TMP_Text MissText;
-
-    public TMP_Text GameATxt;
-    public TMP_Text GameBTxt;
-
-    public Button MenuButton;
 
     GameObject TempGO01, TempGO02, TempGO03, TempGO04;
 
@@ -87,11 +75,12 @@ public class GameManager : MonoBehaviour
         LooseState = false;
         CatchState = false;
 
-        counterText.text = "0"; //start count
+        UIManager.CounterTextValue = "0"; //start count
 
-        GameATxt.enabled = false;
-        GameBTxt.enabled = false;
-        MissText.enabled = false;
+        UIManager.GameTypeSelector = 0;
+
+        UIManager.ShowMissText = false;
+
 
         HeroDirection = 2; // bottom right
 
@@ -141,7 +130,6 @@ public class GameManager : MonoBehaviour
         }
 
         objectForRender(RandomObject);
-        //Debug.Log(RandomPair + "/" + RandomObject);
     }
 
 
@@ -222,12 +210,7 @@ public class GameManager : MonoBehaviour
                 TempGO01 = Instantiate(gameObj01);     
                 TempGO01.name = TempName;
 
-                if (!soundQueue.Contains("tone01"))
-                {
-                    soundQueue.Add("tone01");
-                }
-                        
-                //Debug.Log(TempName + " was created!");
+                soundQueue.Add("tone01");
 
                 break;
             case 2:
@@ -237,14 +220,9 @@ public class GameManager : MonoBehaviour
                 TempGO02 = Instantiate(gameObj02);
                 TempGO02.name = TempName;
 
-                if (!soundQueue.Contains("tone02"))
-                {
-                    soundQueue.Add("tone02");
-                }
-
-                    //Debug.Log(TempName + " was created!");
-
-                    break;
+                soundQueue.Add("tone02");
+            
+                break;
             case 3:
                 
                 TempName = "object3_" + InstObjCount.ToString();
@@ -252,14 +230,9 @@ public class GameManager : MonoBehaviour
                 TempGO03 = Instantiate(gameObj03);
                 TempGO03.name = TempName;
 
-                    if (!soundQueue.Contains("tone03"))
-                    {
-                        soundQueue.Add("tone03");
-                    }
+                soundQueue.Add("tone03");
 
-                    //Debug.Log(TempName + " was created!");
-
-                    break;
+                break;
             case 4:
                 
                 TempName = "object4_" + InstObjCount.ToString();
@@ -267,14 +240,9 @@ public class GameManager : MonoBehaviour
                 TempGO04 = Instantiate(gameObj04);
                 TempGO04.name = TempName;
 
-                    if (!soundQueue.Contains("tone04"))
-                    {
-                        soundQueue.Add("tone04");
-                    }
+                soundQueue.Add("tone04");
 
-                    //Debug.Log(TempName + " was created!");
-
-                    break;
+                break;
             default:
                 break;
 
@@ -296,9 +264,6 @@ public class GameManager : MonoBehaviour
     
     void Update()
     {
-        //listen kbd
-        ButtonInput();
-
         //check speed
         SpeedController();
 
@@ -326,20 +291,13 @@ public class GameManager : MonoBehaviour
             {
                 GameLogic();
 
-                string q1 = "";
-                for (int i = 0; i < soundQueue.Count; i++)
-                {
-                    q1 = q1 + ", " + soundQueue[i];
-                    //Debug.Log("Sound:" + q1 + "/ " + TotalGameTime);
-                }
-
-                //Debug.Log("Q: " + q1 + "/" + LooseState);
-
                 if (soundQueue.Count > 0 && !LooseState)
                 {
-                    _clip = (AudioClip)Resources.Load(soundQueue[0]);
+                    //Debug.Log(soundQueue.Count +"/"+ TotalGameTime);
+
+                    _clip = (AudioClip)Resources.Load(soundQueue.Last());
                     SoundManager.Instance.PlaySound(_clip);
-                    soundQueue.Clear();
+                    soundQueue.Remove(soundQueue.First());
                 }
 
                 TotalGameTime++;
@@ -353,16 +311,17 @@ public class GameManager : MonoBehaviour
 
     void EndGameLogic()
     {
-
         GameState = false;
         PauseState = false;
         LooseState = false;
 
+        soundQueue.Clear();
     }
 
     void IdleLogic()
     {
-        counterText.text = DateTime.Now.ToString("HH:mm");
+
+        UIManager.CounterTextValue = DateTime.Now.ToString("HH:mm");
 
         GameTime = GameTime + Time.unscaledDeltaTime;
 
@@ -409,7 +368,7 @@ public class GameManager : MonoBehaviour
     {
         if (GameScore < 100)
         {
-            if (!IdleState) { counterText.text = GameScore.ToString(); } //for idle
+            if (!IdleState) { UIManager.CounterTextValue = GameScore.ToString(); } //for idle
         }
         else
         {
@@ -430,7 +389,7 @@ public class GameManager : MonoBehaviour
                 ScoreSecondPartString = "0" + ScoreSecondPartString;
             }
             //need because this used for clock
-            counterText.text = " " + ScoreFirstPartString + " " + ScoreSecondPartString;
+            UIManager.CounterTextValue = " " + ScoreFirstPartString + " " + ScoreSecondPartString;
         }
     }
 
@@ -442,7 +401,7 @@ public class GameManager : MonoBehaviour
 
         if (LostScore > 0)
         {
-            MissText.enabled = true;
+            UIManager.ShowMissText = true;
         }
 
         //max lost value is 6
@@ -480,13 +439,12 @@ public class GameManager : MonoBehaviour
         {
             IdleState = true;
 
-            GameATxt.enabled = false;
-            GameBTxt.enabled = false;
+            UIManager.GameTypeSelector = 0;
 
             GameScore = 0;
             LostScore = 0;
 
-            MissText.enabled = false; //hide miss text
+            UIManager.ShowMissText = false; //hide miss text
 
             GameTime = 0;
             TotalGameTime = 0;
@@ -502,38 +460,36 @@ public class GameManager : MonoBehaviour
             if (!PauseState)
             {
 
-            soundQueue.Clear();
+                soundQueue.Clear();
 
-            GameTime = 0;
-            TotalGameTime = 0;
-            ShowAddCharEndTime = 0;
+                GameTime = 0;
+                TotalGameTime = 0;
+                ShowAddCharEndTime = 0;
 
-            GameState = true;
+                GameState = true;
 
-            IdleState = false;
+                IdleState = false;
 
-            LooseState = false;
+                LooseState = false;
 
-            EndGameState = false;
+                EndGameState = false;
 
-            GameScore = 0;
-            LostScore = 0;
+                GameScore = 0;
+                LostScore = 0;
 
-            ObjectSound = null;
+                ObjectSound = null;
 
             //game type
             if (GameType == "A")
             {
-                GameATxt.enabled = true;
-                GameBTxt.enabled = false;
+                UIManager.GameTypeSelector = 1;
             }
             else
             {
-                GameBTxt.enabled = true;
-                GameATxt.enabled = false;
+                UIManager.GameTypeSelector = 2;
             }
 
-            MissText.enabled = false; //hide miss text
+            UIManager.ShowMissText = false; //hide miss text
 
             HeroDirection = 2; // bottom right
 
@@ -544,124 +500,6 @@ public class GameManager : MonoBehaviour
         }
 
     }
-
-    public void PauseGame()
-    {
-
-        
-        PauseState = true;
-
-        if (GameState)
-        {
-            GameState = false;
-        }
-        
-
-        //Debug.Log(SettingsPanel.activeSelf);
-
-        //if (!GameState && !IdleState && PauseState)
-        //{
-        //    PauseState = false;
-        //    GameState = true;
-        //}
-        //else if (GameState && !IdleState && !PauseState)
-        //{
-        //    PauseState = true;
-        //    GameState = false;
-
-        //    SettingsPanel.SetActive(true);
-        //}
-
-
-
-        //if (!GameState && !IdleState && PauseState)
-        //{
-        //    PauseState = false;
-        //    GameState = true;
-        //    //InfoText.gameObject.SetActive(false);
-        //} else if (GameState && !IdleState && !PauseState)
-        //{
-        //    PauseState = true;
-        //    GameState = false;
-
-        //    SettingsPanel.SetActive(true);
-
-        //    //InfoText.gameObject.SetActive(true);
-        //    //InfoText.text = "Game Paused";
-        //}
-    }
-
-
-    public void UnPauseGame()
-    {
-        PauseState = false;
-
-        if (!IdleState)
-        {
-            GameState = true;
-        }
-    }
-
-
-        void ButtonInput()
-    {
-        //Debug.Log(HelpPanel.activeInHierarchy);
-
-        //Debug.Log(GameState +"/"+ PauseState +"/" +IdleState);
-
-
-        //pos 1
-        if (UserInput.instance.CancelMenu)
-        {
-            //PauseGame();
-
-            if (SettingsPanel.activeInHierarchy)
-            {
-                SettingsPanel.SetActive(false);
-                MenuButton.interactable = true;
-                UnPauseGame();
-                return;
-            }
-
-            if (!SettingsPanel.activeInHierarchy && !HelpPanel.activeInHierarchy)
-            {
-                SettingsPanel.SetActive(true);
-                MenuButton.interactable = false;
-                PauseGame();
-            }
-
-            if (HelpPanel.activeInHierarchy)
-            {
-                HelpPanel.SetActive(false);
-                SettingsPanel.SetActive(true);
-            }
-
-
-            //if (SettingsPanel.activeInHierarchy)
-            //{
-            //    SettingsPanel.SetActive(false);
-            //    PauseState = false;
-            //    GameState = true;
-            //}
-
-
-
-            //if (!SceneLoader.DiallogIsOpen)
-            //{
-            //    PauseGame();
-            //}
-            //else
-            //{
-            //    SettingsPanel.SetActive(false);
-            //    HelpPanel.SetActive(false);
-            //    PauseState = false;
-            //    GameState = true;
-            //}
-        }
-
-    }
-
-
 
     void SpeedController()
     {

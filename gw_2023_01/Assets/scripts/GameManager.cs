@@ -1,14 +1,10 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using TMPro;
-using Unity.IO.LowLevel.Unsafe;
 using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.UI;
-using static TMPro.SpriteAssetUtilities.TexturePacker_JsonArray;
+
 
 public class GameManager : MonoBehaviour
 {
@@ -19,20 +15,25 @@ public class GameManager : MonoBehaviour
 
     public HeroController HC;
 
-    GameObject TempGO01, TempGO02, TempGO03, TempGO04;
+    private GameObject TempGO01, TempGO02, TempGO03, TempGO04;
+
+    public static string LooseObjectName;
 
     public static bool IdleState, GameState, LooseState, PauseState, EndGameState, ShowAddChar, CatchState;
-    public static bool ObjectCollected;
 
     private int RandomObject, InstObjCount, ShowAddCharEndTime, GameEndValue;
     public static int GameScore;    //Score
     public static int LostScore;
 
     public static int TotalGameTime;
-    
     public static int HeroDirection; //player direction
 
     private float GameTime;
+    public static float GameSpeed = 1;
+    private float LooseSpeed = 1;
+    private float CurrentSpeed;
+
+    private int GameLoopScore = 100;
 
     List<int> GameplayRanges = new List<int>();
 
@@ -40,14 +41,12 @@ public class GameManager : MonoBehaviour
 
     private readonly List<int> objectsOrder = new List<int>(); //for random order
 
-    public static string ObjNameToDelete;
-    public static string LooseObjectName;
+    string[] ObjectSounds = { "tone01", "tone02", "tone03", "tone04" };
 
-    public static string ObjectSound;
-
+    //for audio
     public static List<string> soundQueue = new List<string>(); //for random order
-
     private AudioClip _clip;
+    public static string ObjectSound1;
 
     void Start()
     {   
@@ -89,9 +88,10 @@ public class GameManager : MonoBehaviour
         LostScore = 0;
 
         //initial Gameplay Ranges
-        GameplayRanges.Add(5);
-        GameplayRanges.Add(10);
-        GameplayRanges.Add(15);
+        GameplayRanges.Add(25);
+        GameplayRanges.Add(50);
+        GameplayRanges.Add(75);
+        GameplayRanges.Add(100);
 
         //when game is end
         GameEndValue = 6;
@@ -106,7 +106,7 @@ public class GameManager : MonoBehaviour
         {
             do
             {
-                number = UnityEngine.Random.Range(1, 5);
+                number = UnityEngine.Random.Range((int)1, (int)5);
             } while (objectsOrder.Contains(number));
             objectsOrder.Add(number);
         }
@@ -118,15 +118,15 @@ public class GameManager : MonoBehaviour
         int RandomPair;
 
         //pair ofobjects
-        RandomPair = UnityEngine.Random.Range(0, 2);
+        RandomPair = UnityEngine.Random.Range((int)0, (int)2);
 
         if (RandomPair == 0)
         {
-            RandomObject = UnityEngine.Random.Range(1, 3);
+            RandomObject = UnityEngine.Random.Range((int)1, (int)3);
         }
         else
         {
-            RandomObject = UnityEngine.Random.Range(3, 5);
+            RandomObject = UnityEngine.Random.Range((int)3, (int)5);
         }
 
         objectForRender(RandomObject);
@@ -135,34 +135,72 @@ public class GameManager : MonoBehaviour
 
     void GameLogic()
     {
-        //Debug.Log(TotalGameTime);
-
-        //IntroGameplay();
+        IntroGameplay();
 
         //random every odd sec
 
-        //IntroGameplay();
-       //RandomObjectRender();
-        
-        if (GameScore >= 0 && GameScore <= GameplayRanges[0] && TotalGameTime % 4 == 0)
+        //1 fish 4sec
+        if (TotalGameTime > 23)
         {
-            RandomObjectRender();
-            //Debug.Log("Range 1");
+            if (GameScore >= 1 && GameScore <= GameplayRanges[0] && TotalGameTime % 4 == 0)
+            {
+                if (UIManager.GameTypeSelector == 1)
+                {
+                    CurrentSpeed = 0.95f;
+                }
+                else
+                {
+                    CurrentSpeed = 0.55f;
+                }
+
+                RandomObjectRender();
+            }
+
+            //1 fish 3sec
+            if (GameScore > GameplayRanges[0] && GameScore <= GameplayRanges[1] && TotalGameTime % 3 == 0)
+            {
+                if (UIManager.GameTypeSelector == 1)
+                {
+                    CurrentSpeed = 0.8f;
+                }
+                else
+                {
+                    CurrentSpeed = 0.5f;
+                }
+
+                RandomObjectRender();
+            }
+
+            //1 fish 2sec
+            if (GameScore > GameplayRanges[1] && GameScore <= GameplayRanges[2] && TotalGameTime % 2 == 0)
+            {
+                if (UIManager.GameTypeSelector == 1)
+                {
+                    CurrentSpeed = 0.6f;
+                }
+                else
+                {
+                    CurrentSpeed = 0.4f;
+                }
+
+                RandomObjectRender();
+            }
+
+            if (GameScore > GameplayRanges[2] && GameScore <= GameplayRanges[3] && TotalGameTime % 2 == 0)
+            {
+                if (UIManager.GameTypeSelector == 1)
+                {
+                    CurrentSpeed = 0.4f;
+                }
+                else
+                {
+                    CurrentSpeed = 0.3f;
+                }
+
+                RandomObjectRender();
+            }
         }
 
-        if (GameScore > GameplayRanges[0] && GameScore <= GameplayRanges[1] && TotalGameTime % 3 == 0)
-        {
-            RandomObjectRender();
-           // Debug.Log("Range 2");
-        }
-
-        if (GameScore > GameplayRanges[1] && GameScore <= GameplayRanges[2] && TotalGameTime % 2 == 0)
-        {
-            RandomObjectRender();
-            //Debug.Log("Range 3");
-        }
-       
-        //Debug.Log(GameScore +" / " + "GR1/" + GameplayRanges[1] + " GR2/" + GameplayRanges[2]);
 
     }
 
@@ -172,7 +210,6 @@ public class GameManager : MonoBehaviour
         if (TotalGameTime == 0)
         {
             objectForRender(objectsOrder[0]);
-            //Debug.Log("Render 1");
         }
 
         if (TotalGameTime == 6)
@@ -180,12 +217,12 @@ public class GameManager : MonoBehaviour
             objectForRender(objectsOrder[1]);
         }
 
-        if (TotalGameTime == 11)
+        if (TotalGameTime == 12)
         {
             objectForRender(objectsOrder[2]);
         }
 
-        if (TotalGameTime == 16)
+        if (TotalGameTime == 18)
         {
             objectForRender(objectsOrder[3]);
         }
@@ -205,42 +242,30 @@ public class GameManager : MonoBehaviour
             case 1:
                 string TempName;
 
-                TempName = "object1_" + InstObjCount.ToString();
-
+                TempName = "obj_01_" + InstObjCount.ToString();
                 TempGO01 = Instantiate(gameObj01);     
                 TempGO01.name = TempName;
-
-                soundQueue.Add("tone01");
 
                 break;
             case 2:
                 
-                TempName = "object2_" + InstObjCount.ToString();
-
+                TempName = "obj_02_" + InstObjCount.ToString();
                 TempGO02 = Instantiate(gameObj02);
                 TempGO02.name = TempName;
-
-                soundQueue.Add("tone02");
             
                 break;
             case 3:
                 
-                TempName = "object3_" + InstObjCount.ToString();
-
+                TempName = "obj_03_" + InstObjCount.ToString();
                 TempGO03 = Instantiate(gameObj03);
                 TempGO03.name = TempName;
-
-                soundQueue.Add("tone03");
 
                 break;
             case 4:
                 
-                TempName = "object4_" + InstObjCount.ToString();
-
+                TempName = "obj_04_" + InstObjCount.ToString();
                 TempGO04 = Instantiate(gameObj04);
                 TempGO04.name = TempName;
-
-                soundQueue.Add("tone04");
 
                 break;
             default:
@@ -286,22 +311,73 @@ public class GameManager : MonoBehaviour
 
             ScoreCounter();
 
-            //1 sec
-            if (GameTime > 1f) 
+            if (LooseState)
+            {
+                GameSpeed = LooseSpeed;
+            }
+            else
+            {
+                GameSpeed = CurrentSpeed;
+            }            
+
+            //Game Speed
+            if (GameTime > GameSpeed) 
             {
                 GameLogic();
 
-                if (soundQueue.Count > 0 && !LooseState)
-                {
-                    //Debug.Log(soundQueue.Count +"/"+ TotalGameTime);
+                int ObjectsCount = 0;
+                string forsound = "";
 
-                    _clip = (AudioClip)Resources.Load(soundQueue.Last());
-                    SoundManager.Instance.PlaySound(_clip);
-                    soundQueue.Remove(soundQueue.First());
+                GameObject[] allObjects = GameObject.FindGameObjectsWithTag("fish");
+                foreach (GameObject obj in allObjects)
+                {
+                    ObjectsCount++;
+                    forsound = obj.name;
                 }
 
-                TotalGameTime++;
+                //Debug.Log(TotalGameTime + "/" + LooseState);
+                
+                if (ObjectsCount == 1 && !LooseState)
+                {
+                    if (forsound.Contains("obj_01"))
+                    {
+                        _clip = (AudioClip)Resources.Load(ObjectSounds[0]);
+                        SoundManager.Instance.PlaySound(_clip);
+                    }
 
+                    if (forsound.Contains("obj_02"))
+                    {
+                        _clip = (AudioClip)Resources.Load(ObjectSounds[1]);
+                        SoundManager.Instance.PlaySound(_clip);
+                    }
+
+                    if (forsound.Contains("obj_03"))
+                    {
+                        _clip = (AudioClip)Resources.Load(ObjectSounds[2]);
+                        SoundManager.Instance.PlaySound(_clip);
+                    }
+
+                    if (forsound.Contains("obj_04"))
+                    {
+                        _clip = (AudioClip)Resources.Load(ObjectSounds[3]);
+                        SoundManager.Instance.PlaySound(_clip);
+                    }
+
+                }
+
+                if (ObjectsCount > 1 && !LooseState)
+                { 
+                    //play random sound
+                    int RandomSoundNumber = UnityEngine.Random.Range((int)0, (int)4);
+                    _clip = (AudioClip)Resources.Load(ObjectSounds[RandomSoundNumber]);
+                    SoundManager.Instance.PlaySound(_clip);
+                }
+
+                if (!LooseState)
+                {
+                    TotalGameTime++;                
+                }
+                    
                 AdditionalCharacterCall(TotalGameTime);
 
                 GameTime = 0;
@@ -315,12 +391,14 @@ public class GameManager : MonoBehaviour
         PauseState = false;
         LooseState = false;
 
+        CurrentSpeed = 1;
+
         soundQueue.Clear();
     }
 
     void IdleLogic()
     {
-
+        //clock
         UIManager.CounterTextValue = DateTime.Now.ToString("HH:mm");
 
         GameTime = GameTime + Time.unscaledDeltaTime;
@@ -333,7 +411,7 @@ public class GameManager : MonoBehaviour
             GameScore = 0;
         }
 
-        if (GameTime > 1f)
+        if (GameTime > GameSpeed)
         {
             int CurrentHeroDirection = HeroDirection;
             HeroDirection = UnityEngine.Random.Range(0, 4);
@@ -353,8 +431,6 @@ public class GameManager : MonoBehaviour
     void AdditionalCharacterCall(int Time)
     {
         // each 10 sec show second sharacter
-
-
         if (Time % 10 == 0)
         {
             int RandomAddCharTime;
@@ -395,13 +471,30 @@ public class GameManager : MonoBehaviour
 
     public void ScoreCounter()
     {
-        //TotalGameTime +   + "/" + InstObjCount.ToString()
-
-        ScoreOutput();
+         ScoreOutput();
 
         if (LostScore > 0)
         {
             UIManager.ShowMissText = true;
+        }
+
+        //game loop
+        if (GameScore >= GameLoopScore)
+        {
+            LostScore = 0;
+            GameScore = 0;
+            TotalGameTime = 0;
+
+            if (UIManager.GameTypeSelector == 1)
+            {
+                CurrentSpeed = 1;
+            }
+            else
+            {
+                CurrentSpeed = 0.6F;
+            }
+
+            UIManager.ShowMissText = false;
         }
 
         //max lost value is 6
@@ -420,6 +513,7 @@ public class GameManager : MonoBehaviour
         if (!GameState)
         {
             StartGame("A");
+            CurrentSpeed = 1; //normal speed
         }
 
     }
@@ -429,6 +523,7 @@ public class GameManager : MonoBehaviour
         if (!GameState)
         {
             StartGame("B");
+            CurrentSpeed = 0.6f; //fastest speed
         }
     }
 
@@ -454,30 +549,60 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    private void DeleteTempGO()
+    {
+        try
+        {
+            GameObject[] allObjects = GameObject.FindGameObjectsWithTag("fish");
+            foreach (GameObject obj in allObjects)
+            {
+                Destroy(obj);
+            }
+        }
+        catch (Exception)
+        {
+
+            throw;
+        }
+
+    }
+
     //start new game routine
     void StartGame(string GameType)
     {
-            if (!PauseState)
+        if (!PauseState)
+        {
+            if (LooseState)
             {
-
-                soundQueue.Clear();
-
-                GameTime = 0;
-                TotalGameTime = 0;
-                ShowAddCharEndTime = 0;
-
-                GameState = true;
-
-                IdleState = false;
-
                 LooseState = false;
+            }
 
-                EndGameState = false;
+            gameObj01.SetActive(false);
 
-                GameScore = 0;
-                LostScore = 0;
+            //delete objects
+            DeleteTempGO();
 
-                ObjectSound = null;
+            gameObj01.SetActive(true);
+
+            InstObjCount = 0;
+      
+            //time
+            GameTime = 0;
+            TotalGameTime = 0;
+            ShowAddCharEndTime = 0;
+
+            //states
+            GameState = true;
+            IdleState = false;
+            LooseState = false;
+            EndGameState = false;
+
+            GameScore = 0;
+            LostScore = 0;
+
+            //sound
+            //ObjectSound = null;
+            soundQueue.Clear();
 
             //game type
             if (GameType == "A")
@@ -492,11 +617,6 @@ public class GameManager : MonoBehaviour
             UIManager.ShowMissText = false; //hide miss text
 
             HeroDirection = 2; // bottom right
-
-            Destroy(TempGO01);
-            Destroy(TempGO02);
-            Destroy(TempGO03);
-            Destroy(TempGO04);
         }
 
     }
@@ -507,26 +627,8 @@ public class GameManager : MonoBehaviour
         if (InstObjCount < 25)
         {
             Time.timeScale = 1.0f;
-            //Debug.Log("Speed 1");
-        }
-        /*
-        if (InstObjCount > 25 && InstObjCount < 50)
-        {
-            Time.timeScale = 1.25f;
-            Debug.Log("Speed 2");
         }
 
-        if (InstObjCount > 50 && InstObjCount < 75)
-        {
-            Time.timeScale = 1.5f;
-            Debug.Log("Speed 3");
-        }
-
-        if (InstObjCount > 75 && InstObjCount < 100)
-        {
-            Time.timeScale = 1.75f;
-            Debug.Log("Speed 4");
-        }
-        */
     }
+
 }

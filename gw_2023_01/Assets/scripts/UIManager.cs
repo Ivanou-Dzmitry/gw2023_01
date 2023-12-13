@@ -78,6 +78,11 @@ public class UIManager : MonoBehaviour
         //MISS text
         MissText.enabled = ShowMissText;
 
+        if (GameManager.GameState)
+        {
+            PlayBanner.SetActive(false);
+        }
+
         if (GameManager.EndGameState)
         {
             EndGameBanner.SetActive(true);

@@ -14,7 +14,9 @@ public class ObjectController : MonoBehaviour
 
     //direction of player for win
     [SerializeField] private int Direction;
-    [SerializeField] private string ObjectSound;
+
+    public string OSound { get { return ObjectSound; } set { ObjectSound = value; } }
+    [SerializeField] public string ObjectSound;
 
     void Start()
     {
@@ -24,8 +26,6 @@ public class ObjectController : MonoBehaviour
             sprite.gameObject.SetActive(false);
 
         this.FrameN = 0;
-
-        GameManager.soundQueue.Add(this.ObjectSound);
     }
 
 
@@ -88,31 +88,22 @@ public class ObjectController : MonoBehaviour
     void Update()
     {
         objectLogic();
-        //render
-        
+    }
+
+    private void LateUpdate()
+    {
         //destroy other
-        if (GameManager.EndGameState == true && GameManager.LooseObjectName != this.name)
+        if (GameManager.EndGameState && GameManager.LooseObjectName != this.name)
         {
             hideObect();
             this.FrameN = 0;
             Destroy(this.gameObject);
         }
-
-    }
-
-    private void LateUpdate()
-    {
-        //Debug.Log("LATE");
     }
 
 
     private void StateChanger()
     {
-        if (this.FrameN < 4)
-        {
-            State = "normal"; 
-        }
-
         if (this.FrameN == 4 && GameManager.HeroDirection != this.Direction && !GameManager.IdleState && !GameManager.PauseState)
         {
             GameManager.LooseState = true;
@@ -121,39 +112,31 @@ public class ObjectController : MonoBehaviour
 
         if (this.FrameN == 4 && GameManager.HeroDirection == this.Direction)
         {
+            GameManager.LooseState = false;
             State = "catch";
-            //catch sound
-
-        }
-
-        if (this.FrameN == 7 && !GameManager.IdleState && GameManager.soundQueue.Count > 0)
-        {
-            State = "after_loose";
         }
     }
 
     private void SoundPlayer()
     {
+        //catch sound
         if (State == "catch")
         {
             _clip = (AudioClip)Resources.Load("catch");
             SoundManager.Instance.PlaySound(_clip);
         }
 
-        if (State == "normal")
+        //loose sound
+        if (GameManager.LooseState && GameManager.LooseObjectName == this.name && this.FrameN == 5)
         {
-            GameManager.soundQueue.Add(this.ObjectSound);
-        }
-
-        if (State == "after_loose")
-        {
-            _clip = (AudioClip)Resources.Load(GameManager.soundQueue.Last());
+            _clip = (AudioClip)Resources.Load("loose");
             SoundManager.Instance.PlaySound(_clip);
         }
     }
 
     void objectLogic()
     {
+        //state for sound and events of object
         StateChanger();
 
         objectRender();
@@ -161,13 +144,12 @@ public class ObjectController : MonoBehaviour
         //time for object
         this.ObjectTime = this.ObjectTime + Time.unscaledDeltaTime;
 
-            //each 1sec
-            if (this.ObjectTime > 1f)
+        //each 1sec
+        if (this.ObjectTime > GameManager.GameSpeed)
         {            
             //if not pause
             if (!GameManager.PauseState)
             {
-                SoundPlayer();
 
                 //counterlogic
                 counterLogic();
@@ -178,18 +160,14 @@ public class ObjectController : MonoBehaviour
                     this.FrameN++;
                 }
 
-                if (GameManager.LooseState && GameManager.LooseObjectName == this.name && this.FrameN == 5)
-                {
-                    _clip = (AudioClip)Resources.Load("loose");
-                    SoundManager.Instance.PlaySound(_clip);
-                }
-
-
                 //add frames for all
                 if (!GameManager.LooseState)
                 {
                     this.FrameN++;
                 }
+
+                //stay here
+                SoundPlayer();
 
                 //hide previous
                 hidePrevious();
@@ -200,6 +178,11 @@ public class ObjectController : MonoBehaviour
 
         }
 
+    }
+
+    public void DestroyObj()
+    {
+        Destroy(this.gameObject);
     }
 
     void hideObect()

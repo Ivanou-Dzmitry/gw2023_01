@@ -5,49 +5,11 @@ using UnityEngine;
 
 public class ObjectsController : MonoBehaviour
 {
-    private Component[] ObjectFrames;
-    private float ObjectTime;
-    private int Digit, MyShift, MyShift2;
-
-    List<GameObject> F1 = new List<GameObject>();
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        ObjectFrames = GetComponentsInChildren<SpriteRenderer>();
-
-        //Debug.Log(ObjectFrames.Length);
-
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
-        ObjectTime = ObjectTime + Time.unscaledDeltaTime;
 
 
 
-        if (ObjectTime > 1f)
-        {
-            Digit++;
-            MyShift = Digit >> 1;
-            MyShift2 = Digit << 1;
 
-
-            //Debug.Log("Digit: " + Digit.ToString());
-
-            //Debug.Log("Shift: " + MyShift.ToString() +"/" + MyShift2.ToString());
-
-            ObjectTime = 0;
-        }
-
-            //LFSR_Fibonacci.Generate();
-
-            
-        //F1[0].gameObject.SetActive(true);
-        //ObjectFrames[0].gameObject.SetActive(true);
-    }
+   
 
     public class LFSR_Fibonacci
     {

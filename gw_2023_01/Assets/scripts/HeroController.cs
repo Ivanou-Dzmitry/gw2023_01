@@ -39,7 +39,6 @@ public class HeroController : MonoBehaviour
         {
             GameManager.HeroDirection = 0; //left top
         }
-
     }
 
     public void HeroPosition_02()
@@ -48,7 +47,6 @@ public class HeroController : MonoBehaviour
         {
             GameManager.HeroDirection = 3; //right top    
         }
-
     }
 
     public void HeroPosition_03()
@@ -97,8 +95,6 @@ public class HeroController : MonoBehaviour
             {
                 HeroPosition_04();
             }
-
-        }
-            
+        }    
     }
 }

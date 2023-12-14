@@ -5,26 +5,16 @@ using UnityEngine;
 public class TimeButton : MonoBehaviour
 {
     public GameManager GM;
+    public SoundManager SM;
     public SpriteRenderer spriteRenderer;
 
     public Sprite regular;
     public Sprite mouseClicked;
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 
     private void OnMouseDown()
     {
-        //GM.GetComponent<GameManager>().gameA();
+        if (!GameManager.GameState) { SM.ButtonClick(); }
         GM.idleState();
         spriteRenderer.sprite = mouseClicked;
     }

@@ -15,9 +15,6 @@ public class ObjectController : MonoBehaviour
     //direction of player for win
     [SerializeField] private int Direction;
 
-    public string OSound { get { return ObjectSound; } set { ObjectSound = value; } }
-    [SerializeField] public string ObjectSound;
-
     void Start()
     {
         ObjectFrames = GetComponentsInChildren<SpriteRenderer>();
@@ -122,15 +119,24 @@ public class ObjectController : MonoBehaviour
         //catch sound
         if (State == "catch")
         {
-            _clip = (AudioClip)Resources.Load("catch");
+            _clip = (AudioClip)Resources.Load("catch"); //catch sound
             SoundManager.Instance.PlaySound(_clip);
         }
 
         //loose sound
         if (GameManager.LooseState && GameManager.LooseObjectName == this.name && this.FrameN == 5)
         {
-            _clip = (AudioClip)Resources.Load("loose");
-            SoundManager.Instance.PlaySound(_clip);
+            if (GameManager.LostScore <= 5)
+            {
+                _clip = (AudioClip)Resources.Load("loose"); //loose sound
+                SoundManager.Instance.PlaySound(_clip);
+            }
+            else
+            {
+                _clip = (AudioClip)Resources.Load("gameover"); //gameover sound
+                SoundManager.Instance.PlaySound(_clip);
+            }
+
         }
     }
 
@@ -175,14 +181,7 @@ public class ObjectController : MonoBehaviour
                 //zero time
                 this.ObjectTime = 0;
             }
-
         }
-
-    }
-
-    public void DestroyObj()
-    {
-        Destroy(this.gameObject);
     }
 
     void hideObect()

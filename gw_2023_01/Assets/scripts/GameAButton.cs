@@ -7,6 +7,7 @@ public class GameAButton : MonoBehaviour
 {
     //GameManager GM;
     public GameManager GM;
+    public SoundManager SM;
     public SpriteRenderer spriteRenderer;
 
     public Sprite regular;
@@ -14,6 +15,8 @@ public class GameAButton : MonoBehaviour
 
     private void OnMouseDown()
     {
+        if (!GameManager.GameState) { SM.ButtonClick(); }
+        
         GM.gameA();
         spriteRenderer.sprite = mouseClicked;
     }

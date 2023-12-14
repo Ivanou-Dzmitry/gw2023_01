@@ -33,9 +33,16 @@ public class GameManager : MonoBehaviour
     private float LooseSpeed = 1;
     private float CurrentSpeed;
 
-    private int GameLoopScore = 100;
+    private int GameCycles = 10;
+    private int GameCycle = 0;
+    private int CycleLenght = 40;
 
-    List<int> GameplayRanges = new List<int>();
+    //initial Gameplay Ranges
+    //List<int> GameplayRanges = new List<int> { 25, 50, 75, 100};
+    List<int> GameplayRanges = new List<int> { 10, 20, 30, 40 };
+
+    List<float> GameASpeed = new List<float> { 1.0f, 0.95f, 0.85f, 0.55f, 0.5f };
+    List<float> GameBSpeed = new List<float> { 0.6f, 0.55f, 0.5f, 0.45f, 0.4f };
 
     private readonly int GameObjectsCount = 4; //game objects in current game
 
@@ -44,7 +51,6 @@ public class GameManager : MonoBehaviour
     string[] ObjectSounds = { "tone01", "tone02", "tone03", "tone04" };
 
     //for audio
-    public static List<string> soundQueue = new List<string>(); //for random order
     private AudioClip _clip;
     public static string ObjectSound1;
 
@@ -87,12 +93,6 @@ public class GameManager : MonoBehaviour
         GameScore = 0;
         LostScore = 0;
 
-        //initial Gameplay Ranges
-        GameplayRanges.Add(25);
-        GameplayRanges.Add(50);
-        GameplayRanges.Add(75);
-        GameplayRanges.Add(100);
-
         //when game is end
         GameEndValue = 6;
     }
@@ -115,42 +115,34 @@ public class GameManager : MonoBehaviour
 
     void RandomObjectRender()
     {
-        int RandomPair;
-
-        //pair ofobjects
-        RandomPair = UnityEngine.Random.Range((int)0, (int)2);
-
-        if (RandomPair == 0)
-        {
-            RandomObject = UnityEngine.Random.Range((int)1, (int)3);
-        }
-        else
-        {
-            RandomObject = UnityEngine.Random.Range((int)3, (int)5);
-        }
-
+        RandomObject = UnityEngine.Random.Range((int)1, (int)5);
         objectForRender(RandomObject);
     }
 
 
     void GameLogic()
     {
-        IntroGameplay();
+        //intro simple gameplay
+        if (TotalGameTime < 23 && GameCycle == 0)
+        {
+            IntroGameplay();
+        }
 
+        Debug.Log(GameScore);
         //random every odd sec
 
         //1 fish 4sec
-        if (TotalGameTime > 23)
+        if (TotalGameTime > 23 | GameCycle > 0)
         {
             if (GameScore >= 1 && GameScore <= GameplayRanges[0] && TotalGameTime % 4 == 0)
             {
                 if (UIManager.GameTypeSelector == 1)
                 {
-                    CurrentSpeed = 0.95f;
+                    CurrentSpeed = GameASpeed[1];
                 }
                 else
                 {
-                    CurrentSpeed = 0.55f;
+                    CurrentSpeed = GameBSpeed[1];
                 }
 
                 RandomObjectRender();
@@ -161,11 +153,11 @@ public class GameManager : MonoBehaviour
             {
                 if (UIManager.GameTypeSelector == 1)
                 {
-                    CurrentSpeed = 0.8f;
+                    CurrentSpeed = GameASpeed[2];
                 }
                 else
                 {
-                    CurrentSpeed = 0.5f;
+                    CurrentSpeed = GameBSpeed[2];
                 }
 
                 RandomObjectRender();
@@ -176,11 +168,11 @@ public class GameManager : MonoBehaviour
             {
                 if (UIManager.GameTypeSelector == 1)
                 {
-                    CurrentSpeed = 0.6f;
+                    CurrentSpeed = GameASpeed[3];
                 }
                 else
                 {
-                    CurrentSpeed = 0.4f;
+                    CurrentSpeed = GameBSpeed[3];
                 }
 
                 RandomObjectRender();
@@ -190,11 +182,11 @@ public class GameManager : MonoBehaviour
             {
                 if (UIManager.GameTypeSelector == 1)
                 {
-                    CurrentSpeed = 0.4f;
+                    CurrentSpeed = GameASpeed[4];
                 }
                 else
                 {
-                    CurrentSpeed = 0.3f;
+                    CurrentSpeed = GameBSpeed[4];
                 }
 
                 RandomObjectRender();
@@ -325,53 +317,7 @@ public class GameManager : MonoBehaviour
             {
                 GameLogic();
 
-                int ObjectsCount = 0;
-                string forsound = "";
-
-                GameObject[] allObjects = GameObject.FindGameObjectsWithTag("fish");
-                foreach (GameObject obj in allObjects)
-                {
-                    ObjectsCount++;
-                    forsound = obj.name;
-                }
-
-                //Debug.Log(TotalGameTime + "/" + LooseState);
-                
-                if (ObjectsCount == 1 && !LooseState)
-                {
-                    if (forsound.Contains("obj_01"))
-                    {
-                        _clip = (AudioClip)Resources.Load(ObjectSounds[0]);
-                        SoundManager.Instance.PlaySound(_clip);
-                    }
-
-                    if (forsound.Contains("obj_02"))
-                    {
-                        _clip = (AudioClip)Resources.Load(ObjectSounds[1]);
-                        SoundManager.Instance.PlaySound(_clip);
-                    }
-
-                    if (forsound.Contains("obj_03"))
-                    {
-                        _clip = (AudioClip)Resources.Load(ObjectSounds[2]);
-                        SoundManager.Instance.PlaySound(_clip);
-                    }
-
-                    if (forsound.Contains("obj_04"))
-                    {
-                        _clip = (AudioClip)Resources.Load(ObjectSounds[3]);
-                        SoundManager.Instance.PlaySound(_clip);
-                    }
-
-                }
-
-                if (ObjectsCount > 1 && !LooseState)
-                { 
-                    //play random sound
-                    int RandomSoundNumber = UnityEngine.Random.Range((int)0, (int)4);
-                    _clip = (AudioClip)Resources.Load(ObjectSounds[RandomSoundNumber]);
-                    SoundManager.Instance.PlaySound(_clip);
-                }
+                SoundLogic();
 
                 if (!LooseState)
                 {
@@ -385,15 +331,62 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    void SoundLogic()
+    {
+        int ObjectsCount = 0;
+        string forsound = "";
+
+        GameObject[] allObjects = GameObject.FindGameObjectsWithTag("fish");
+        foreach (GameObject obj in allObjects)
+        {
+            ObjectsCount++;
+            forsound = obj.name;
+        }
+
+        //Debug.Log(TotalGameTime + "/" + LooseState);
+
+        if (ObjectsCount == 1 && !LooseState)
+        {
+            if (forsound.Contains("obj_01"))
+            {
+                _clip = (AudioClip)Resources.Load(ObjectSounds[0]);
+                SoundManager.Instance.PlaySound(_clip);
+            }
+
+            if (forsound.Contains("obj_02"))
+            {
+                _clip = (AudioClip)Resources.Load(ObjectSounds[1]);
+                SoundManager.Instance.PlaySound(_clip);
+            }
+
+            if (forsound.Contains("obj_03"))
+            {
+                _clip = (AudioClip)Resources.Load(ObjectSounds[2]);
+                SoundManager.Instance.PlaySound(_clip);
+            }
+
+            if (forsound.Contains("obj_04"))
+            {
+                _clip = (AudioClip)Resources.Load(ObjectSounds[3]);
+                SoundManager.Instance.PlaySound(_clip);
+            }
+
+        }
+
+        if (ObjectsCount > 1 && !LooseState)
+        {
+            //play random sound
+            int RandomSoundNumber = UnityEngine.Random.Range((int)0, (int)4);
+            _clip = (AudioClip)Resources.Load(ObjectSounds[RandomSoundNumber]);
+            SoundManager.Instance.PlaySound(_clip);
+        }
+    }
+
     void EndGameLogic()
     {
         GameState = false;
         PauseState = false;
         LooseState = false;
-
-        CurrentSpeed = 1;
-
-        soundQueue.Clear();
     }
 
     void IdleLogic()
@@ -478,8 +471,21 @@ public class GameManager : MonoBehaviour
             UIManager.ShowMissText = true;
         }
 
+        //game cycles 100, 200, 300 etc
+        if (GameScore > 0 && GameScore % CycleLenght == 0)
+        {
+            GameCycle++;
+
+            GameplayRanges[0] = GameplayRanges[0] + CycleLenght;
+            GameplayRanges[1] = GameplayRanges[1] + CycleLenght;
+            GameplayRanges[2] = GameplayRanges[2] + CycleLenght;
+            GameplayRanges[3] = GameplayRanges[3] + CycleLenght;
+
+            Debug.Log(GameplayRanges[0] + "/" + GameplayRanges[1] + "/" + GameplayRanges[2] + "/" + GameplayRanges[3]);
+        }
+
         //game loop
-        if (GameScore >= GameLoopScore)
+        if (GameCycle == GameCycles)
         {
             LostScore = 0;
             GameScore = 0;
@@ -487,11 +493,11 @@ public class GameManager : MonoBehaviour
 
             if (UIManager.GameTypeSelector == 1)
             {
-                CurrentSpeed = 1;
+                CurrentSpeed = GameASpeed[0];
             }
             else
             {
-                CurrentSpeed = 0.6F;
+                CurrentSpeed = GameBSpeed[0];
             }
 
             UIManager.ShowMissText = false;
@@ -502,20 +508,16 @@ public class GameManager : MonoBehaviour
         {
             EndGameState = true;
         }
-        
     }
 
 
     public void gameA()
     {
-        //Debug.Log("Game A");
-
-        if (!GameState)
+         if (!GameState)
         {
             StartGame("A");
-            CurrentSpeed = 1; //normal speed
+            CurrentSpeed = GameASpeed[0]; //normal speed
         }
-
     }
 
     public void gameB()
@@ -523,7 +525,7 @@ public class GameManager : MonoBehaviour
         if (!GameState)
         {
             StartGame("B");
-            CurrentSpeed = 0.6f; //fastest speed
+            CurrentSpeed = GameBSpeed[0];//fastest speed
         }
     }
 
@@ -599,10 +601,6 @@ public class GameManager : MonoBehaviour
 
             GameScore = 0;
             LostScore = 0;
-
-            //sound
-            //ObjectSound = null;
-            soundQueue.Clear();
 
             //game type
             if (GameType == "A")

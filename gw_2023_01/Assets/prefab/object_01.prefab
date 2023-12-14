@@ -473,7 +473,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Direction: 0
-  ObjectSound: tone01
 --- !u!1 &6932449205576304666
 GameObject:
   m_ObjectHideFlags: 0

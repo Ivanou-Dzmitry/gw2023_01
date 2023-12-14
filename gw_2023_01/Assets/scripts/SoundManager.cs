@@ -8,6 +8,8 @@ public class SoundManager : MonoBehaviour
 
     [SerializeField] private AudioSource _effectsSource;
 
+    private AudioClip _clip;
+
     private void Awake()
     {
         if (Instance == null)
@@ -30,6 +32,7 @@ public class SoundManager : MonoBehaviour
         
     }
 
+
     public void ChangeMasterVolume(float volume)
     {
         AudioListener.volume = volume;
@@ -39,5 +42,11 @@ public class SoundManager : MonoBehaviour
     public void MuteToggle(bool muted)
     {
         _effectsSource.mute = !_effectsSource.mute;
+    }
+
+    public void ButtonClick()
+    {
+        _clip = (AudioClip)Resources.Load("button_click_01");
+        _effectsSource.PlayOneShot(_clip);
     }
 }

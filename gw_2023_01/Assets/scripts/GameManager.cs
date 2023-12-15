@@ -22,7 +22,9 @@ public class GameManager : MonoBehaviour
     public static bool IdleState, GameState, LooseState, PauseState, EndGameState, ShowAddChar, CatchState;
 
     private int RandomObject, InstObjCount, ShowAddCharEndTime, GameEndValue;
-    public static int GameScore;    //Score
+
+    //Score
+    public static int GameScore;    
     public static int LostScore;
 
     public static int TotalGameTime;
@@ -33,16 +35,24 @@ public class GameManager : MonoBehaviour
     private float LooseSpeed = 1;
     private float CurrentSpeed;
 
-    private int GameCycles = 10;
-    private int GameCycle = 0;
-    private int CycleLenght = 40;
+    private int GameCycles = 10; //how many game cycles
+    private int CurrentGameCycle; //currentGameCycle
+
+    private int CycleLenght;
+    private int CycleQuarta = 25; //1/4 of cycle
 
     //initial Gameplay Ranges
-    //List<int> GameplayRanges = new List<int> { 25, 50, 75, 100};
-    List<int> GameplayRanges = new List<int> { 10, 20, 30, 40 };
+    List<int> GameplayRanges = new List<int> ();
 
-    List<float> GameASpeed = new List<float> { 1.0f, 0.95f, 0.85f, 0.55f, 0.5f };
-    List<float> GameBSpeed = new List<float> { 0.6f, 0.55f, 0.5f, 0.45f, 0.4f };
+    List<float> GameASpeed = new List<float>();
+    List<float> GameBSpeed = new List<float>();
+
+    private float InitialASpeed = 1.0f, InitialBSpeed = 0.6f;
+    private float InitialASpeedStep = 0.1f, InitialBSpeedStep = 0.05f;
+
+    private float SpeedStep = 0.025f;
+
+    private bool wasExecuted = false;
 
     private readonly int GameObjectsCount = 4; //game objects in current game
 
@@ -95,6 +105,36 @@ public class GameManager : MonoBehaviour
 
         //when game is end
         GameEndValue = 6;
+
+        SetInitialRanges();
+    }
+
+    private void SetInitialRanges()
+    {
+        //set Initial gameplay ranges
+        GameplayRanges.Insert(0, CycleQuarta);        
+        for (int i = 1; i < 4; i++)
+        {
+            GameplayRanges.Insert(i, GameplayRanges[0] * (i+1));
+        }
+
+
+        //set speed A initial values
+        GameASpeed.Insert(0, InitialASpeed);
+        for (int i = 1; i < 5; i++)
+        {
+            GameASpeed.Insert(i, GameASpeed[i - 1] - InitialASpeedStep);
+        }
+
+        //set speed B initial values
+        GameBSpeed.Insert(0, InitialBSpeed);
+        for (int i = 1; i < 5; i++)
+        {
+            GameBSpeed.Insert(i, GameBSpeed[i - 1] - InitialBSpeedStep);
+        }
+
+        //zero game cycle
+        CurrentGameCycle = 0;
     }
 
 
@@ -122,18 +162,17 @@ public class GameManager : MonoBehaviour
 
     void GameLogic()
     {
+
         //intro simple gameplay
-        if (TotalGameTime < 23 && GameCycle == 0)
+        if (TotalGameTime < 23 && CurrentGameCycle == 0)
         {
             IntroGameplay();
         }
 
-        Debug.Log(GameScore);
-        //random every odd sec
-
         //1 fish 4sec
-        if (TotalGameTime > 23 | GameCycle > 0)
+        if (TotalGameTime > 23 | CurrentGameCycle > 0)
         {
+            //stage 1
             if (GameScore >= 1 && GameScore <= GameplayRanges[0] && TotalGameTime % 4 == 0)
             {
                 if (UIManager.GameTypeSelector == 1)
@@ -148,7 +187,7 @@ public class GameManager : MonoBehaviour
                 RandomObjectRender();
             }
 
-            //1 fish 3sec
+            ////stage 2 - 1 fish 3sec
             if (GameScore > GameplayRanges[0] && GameScore <= GameplayRanges[1] && TotalGameTime % 3 == 0)
             {
                 if (UIManager.GameTypeSelector == 1)
@@ -163,7 +202,7 @@ public class GameManager : MonoBehaviour
                 RandomObjectRender();
             }
 
-            //1 fish 2sec
+            ////stage 3 - 1 fish 2sec
             if (GameScore > GameplayRanges[1] && GameScore <= GameplayRanges[2] && TotalGameTime % 2 == 0)
             {
                 if (UIManager.GameTypeSelector == 1)
@@ -178,8 +217,10 @@ public class GameManager : MonoBehaviour
                 RandomObjectRender();
             }
 
+            //stage 4
             if (GameScore > GameplayRanges[2] && GameScore <= GameplayRanges[3] && TotalGameTime % 2 == 0)
             {
+
                 if (UIManager.GameTypeSelector == 1)
                 {
                     CurrentSpeed = GameASpeed[4];
@@ -190,6 +231,9 @@ public class GameManager : MonoBehaviour
                 }
 
                 RandomObjectRender();
+
+                //reset status for loop
+                wasExecuted = false;
             }
         }
 
@@ -229,51 +273,51 @@ public class GameManager : MonoBehaviour
         if (!LooseState && !PauseState)
         {
 
-        switch (Object)
-        {
-            case 1:
-                string TempName;
+            switch (Object)
+            {
+                case 1:
+                    string TempName;
 
-                TempName = "obj_01_" + InstObjCount.ToString();
-                TempGO01 = Instantiate(gameObj01);     
-                TempGO01.name = TempName;
+                    TempName = "obj_01_" + InstObjCount.ToString();
+                    TempGO01 = Instantiate(gameObj01);     
+                    TempGO01.name = TempName;
 
-                break;
-            case 2:
+                    break;
+                case 2:
                 
-                TempName = "obj_02_" + InstObjCount.ToString();
-                TempGO02 = Instantiate(gameObj02);
-                TempGO02.name = TempName;
+                    TempName = "obj_02_" + InstObjCount.ToString();
+                    TempGO02 = Instantiate(gameObj02);
+                    TempGO02.name = TempName;
             
-                break;
-            case 3:
+                    break;
+                case 3:
                 
-                TempName = "obj_03_" + InstObjCount.ToString();
-                TempGO03 = Instantiate(gameObj03);
-                TempGO03.name = TempName;
+                    TempName = "obj_03_" + InstObjCount.ToString();
+                    TempGO03 = Instantiate(gameObj03);
+                    TempGO03.name = TempName;
 
-                break;
-            case 4:
+                    break;
+                case 4:
                 
-                TempName = "obj_04_" + InstObjCount.ToString();
-                TempGO04 = Instantiate(gameObj04);
-                TempGO04.name = TempName;
+                    TempName = "obj_04_" + InstObjCount.ToString();
+                    TempGO04 = Instantiate(gameObj04);
+                    TempGO04.name = TempName;
 
-                break;
-            default:
-                break;
+                    break;
+                default:
+                    break;
 
-        }
+            }
 
-        //show additional sharacter
-        if (ShowAddCharEndTime > TotalGameTime)
-        {
-            ShowAddChar = true;
-            //Debug.Log("Render Add");
-        } else
-        {
-            ShowAddChar = false;
-        }
+            //show additional sharacter
+            if (ShowAddCharEndTime > TotalGameTime)
+            {
+                ShowAddChar = true;
+                //Debug.Log("Render Add");
+            } else
+            {
+                ShowAddChar = false;
+            }
 
         }
     }
@@ -315,6 +359,8 @@ public class GameManager : MonoBehaviour
             //Game Speed
             if (GameTime > GameSpeed) 
             {
+                GameCyclesLogic();
+                
                 GameLogic();
 
                 SoundLogic();
@@ -462,30 +508,42 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public void ScoreCounter()
+    private void GameCyclesLogic()
     {
-         ScoreOutput();
-
-        if (LostScore > 0)
+        if (!wasExecuted)
         {
-            UIManager.ShowMissText = true;
-        }
+            //game cycles 100, 200, 300 etc
+            if (GameScore > 0 && GameScore % CycleLenght == 0)
+            {   
+                CurrentGameCycle++;
 
-        //game cycles 100, 200, 300 etc
-        if (GameScore > 0 && GameScore % CycleLenght == 0)
-        {
-            GameCycle++;
+                //add next range values
+                for (int i = 0; i < GameplayRanges.Count; i++)
+                {
+                    int CurrentVal = GameplayRanges[i];
+                    GameplayRanges[i] = CycleLenght + CurrentVal;   
+                }
+                
+                //add speed A
+                for (int i = 0; i < GameASpeed.Count; i++)
+                {
+                    float CurrentVal = GameASpeed[i];
+                    GameASpeed[i] = CurrentVal - SpeedStep;
+                }
 
-            GameplayRanges[0] = GameplayRanges[0] + CycleLenght;
-            GameplayRanges[1] = GameplayRanges[1] + CycleLenght;
-            GameplayRanges[2] = GameplayRanges[2] + CycleLenght;
-            GameplayRanges[3] = GameplayRanges[3] + CycleLenght;
+                //add speed B
+                for (int i = 0; i < GameBSpeed.Count; i++)
+                {
+                    float CurrentVal = GameBSpeed[i];
+                    GameBSpeed[i] = CurrentVal - SpeedStep;
+                }
+            }
 
-            Debug.Log(GameplayRanges[0] + "/" + GameplayRanges[1] + "/" + GameplayRanges[2] + "/" + GameplayRanges[3]);
+            wasExecuted = true;
         }
 
         //game loop
-        if (GameCycle == GameCycles)
+        if (CurrentGameCycle == GameCycles)
         {
             LostScore = 0;
             GameScore = 0;
@@ -501,7 +559,22 @@ public class GameManager : MonoBehaviour
             }
 
             UIManager.ShowMissText = false;
+
+            SetInitialRanges();
+
+            DeleteTempGO();
         }
+    }
+
+    public void ScoreCounter()
+    {
+         ScoreOutput();
+
+        if (LostScore > 0)
+        {
+            UIManager.ShowMissText = true;
+        }
+
 
         //max lost value is 6
         if (LostScore >= GameEndValue)

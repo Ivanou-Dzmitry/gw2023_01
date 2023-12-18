@@ -47,6 +47,7 @@ public class GameManager : MonoBehaviour
     List<float> GameASpeed = new List<float>();
     List<float> GameBSpeed = new List<float>();
 
+    //Speed settings
     private float InitialASpeed = 1.0f, InitialBSpeed = 0.6f;
     private float InitialASpeedStep = 0.1f, InitialBSpeedStep = 0.05f;
 
@@ -58,8 +59,7 @@ public class GameManager : MonoBehaviour
 
     private readonly List<int> objectsOrder = new List<int>(); //for random order
 
-    string[] ObjectSounds = { "tone01", "tone02", "tone03", "tone04" };
-
+    
     //for audio
     private AudioClip _clip;
     public static string ObjectSound1;
@@ -118,6 +118,7 @@ public class GameManager : MonoBehaviour
             GameplayRanges.Insert(i, GameplayRanges[0] * (i+1));
         }
 
+        CycleLenght = GameplayRanges[3];
 
         //set speed A initial values
         GameASpeed.Insert(0, InitialASpeed);
@@ -135,6 +136,7 @@ public class GameManager : MonoBehaviour
 
         //zero game cycle
         CurrentGameCycle = 0;
+        
     }
 
 
@@ -359,6 +361,8 @@ public class GameManager : MonoBehaviour
             //Game Speed
             if (GameTime > GameSpeed) 
             {
+                MyDebug("Update");
+
                 GameCyclesLogic();
                 
                 GameLogic();
@@ -395,25 +399,25 @@ public class GameManager : MonoBehaviour
         {
             if (forsound.Contains("obj_01"))
             {
-                _clip = (AudioClip)Resources.Load(ObjectSounds[0]);
+                _clip = (AudioClip)Resources.Load(SoundManager.ObjectSounds[0]);
                 SoundManager.Instance.PlaySound(_clip);
             }
 
             if (forsound.Contains("obj_02"))
             {
-                _clip = (AudioClip)Resources.Load(ObjectSounds[1]);
+                _clip = (AudioClip)Resources.Load(SoundManager.ObjectSounds[1]);
                 SoundManager.Instance.PlaySound(_clip);
             }
 
             if (forsound.Contains("obj_03"))
             {
-                _clip = (AudioClip)Resources.Load(ObjectSounds[2]);
+                _clip = (AudioClip)Resources.Load(SoundManager.ObjectSounds[2]);
                 SoundManager.Instance.PlaySound(_clip);
             }
 
             if (forsound.Contains("obj_04"))
             {
-                _clip = (AudioClip)Resources.Load(ObjectSounds[3]);
+                _clip = (AudioClip)Resources.Load(SoundManager.ObjectSounds[3]);
                 SoundManager.Instance.PlaySound(_clip);
             }
 
@@ -423,7 +427,7 @@ public class GameManager : MonoBehaviour
         {
             //play random sound
             int RandomSoundNumber = UnityEngine.Random.Range((int)0, (int)4);
-            _clip = (AudioClip)Resources.Load(ObjectSounds[RandomSoundNumber]);
+            _clip = (AudioClip)Resources.Load(SoundManager.ObjectSounds[RandomSoundNumber]);
             SoundManager.Instance.PlaySound(_clip);
         }
     }
@@ -690,6 +694,57 @@ public class GameManager : MonoBehaviour
             HeroDirection = 2; // bottom right
         }
 
+    }
+
+    private void MyDebug(string CallPoint)
+    {
+        string TMP = "";
+
+        for (int i = 0; i < 20; i++)
+        {
+            TMP = TMP + "- ";
+        }
+        Debug.Log(TMP);
+
+        Debug.Log("Call from: " + CallPoint);
+        //Debug.Log("TotalGameTime" + TotalGameTime);
+
+        Debug.Log("CycleLenght: " + CycleLenght);
+        Debug.Log("CurrentGameCycle: " + CurrentGameCycle);
+
+        Debug.Log("Game Score: " + GameScore);
+        Debug.Log("Lost Score: " + LostScore);
+
+        Debug.Log("IdleState- " + IdleState + "/ GameState-" + GameState + "/ LooseState-" + LooseState + "/ PauseState-" + PauseState + "/ EndGameState-" + EndGameState + "/ ShowAddChar-" + ShowAddChar + "/ CatchState-" + CatchState);
+
+        TMP = "";
+
+        //add next range values
+        for (int i = 0; i < GameplayRanges.Count; i++)
+        {
+            TMP = TMP + ", " + GameplayRanges[i];
+        }
+
+        Debug.Log("GameplayRanges:" + TMP);
+        TMP = "";
+
+        //add speed A
+        for (int i = 0; i < GameASpeed.Count; i++)
+        {
+            TMP = TMP + ", " + GameASpeed[i];
+        }
+
+        Debug.Log("GameASpeed: " + TMP);
+        TMP = "";
+
+        //add speed B
+        for (int i = 0; i < GameBSpeed.Count; i++)
+        {
+            TMP = TMP + ", " + GameBSpeed[i];
+        }
+
+        Debug.Log("GameBSpeed: " + TMP);
+        TMP = "";
     }
 
     void SpeedController()

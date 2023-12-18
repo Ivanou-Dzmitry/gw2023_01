@@ -10,6 +10,8 @@ public class SoundManager : MonoBehaviour
 
     private AudioClip _clip;
 
+    public static string[] ObjectSounds = { "tone01", "tone02", "tone03", "tone04" };
+
     private void Awake()
     {
         if (Instance == null)

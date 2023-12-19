@@ -65,7 +65,15 @@ public class GameManager : MonoBehaviour
     public static string ObjectSound1;
 
     void Start()
-    {   
+    {
+        //change camera for different aspect
+       float  ScreenAspect = (float)Screen.width / (float)Screen.height;
+
+        if (ScreenAspect < 1.5f)
+            Camera.main.orthographicSize = 8.0f;
+        else
+            Camera.main.orthographicSize = 6.0f;
+
         //Set Framerate
         Application.targetFrameRate = 15;
         
@@ -111,6 +119,7 @@ public class GameManager : MonoBehaviour
 
     private void SetInitialRanges()
     {
+        GameplayRanges.Clear();
         //set Initial gameplay ranges
         GameplayRanges.Insert(0, CycleQuarta);        
         for (int i = 1; i < 4; i++)
@@ -120,6 +129,7 @@ public class GameManager : MonoBehaviour
 
         CycleLenght = GameplayRanges[3];
 
+        GameASpeed.Clear();
         //set speed A initial values
         GameASpeed.Insert(0, InitialASpeed);
         for (int i = 1; i < 5; i++)
@@ -127,6 +137,7 @@ public class GameManager : MonoBehaviour
             GameASpeed.Insert(i, GameASpeed[i - 1] - InitialASpeedStep);
         }
 
+        GameBSpeed.Clear();
         //set speed B initial values
         GameBSpeed.Insert(0, InitialBSpeed);
         for (int i = 1; i < 5; i++)
@@ -327,9 +338,7 @@ public class GameManager : MonoBehaviour
     
     void Update()
     {
-        //check speed
-        SpeedController();
-
+ 
         //show clock on IDLE state
         if (IdleState)
         {
@@ -503,12 +512,20 @@ public class GameManager : MonoBehaviour
                 ScoreSecondPartString = "00";
             }
 
-            if (SecondPartInt <= 9 && GameScore > 100)
+            if (SecondPartInt <= 9 && GameScore > 100 && ScoreSecondPartString != "00")
             {
                 ScoreSecondPartString = "0" + ScoreSecondPartString;
             }
+
+            //for 1000
+            if (ScoreSecondPartString == "1000")
+            {
+                ScoreFirstPartString = "";
+                ScoreSecondPartString = "0";
+            }
+
             //need because this used for clock
-            UIManager.CounterTextValue = " " + ScoreFirstPartString + " " + ScoreSecondPartString;
+            UIManager.CounterTextValue = " " + ScoreFirstPartString + " " + ScoreSecondPartString;            
         }
     }
 
@@ -745,16 +762,6 @@ public class GameManager : MonoBehaviour
 
         Debug.Log("GameBSpeed: " + TMP);
         TMP = "";
-    }
-
-    void SpeedController()
-    {
-
-        if (InstObjCount < 25)
-        {
-            Time.timeScale = 1.0f;
-        }
-
     }
 
 }

@@ -3582,6 +3582,7 @@ MonoBehaviour:
   SettingsPanel: {fileID: 1682255631}
   SettingsScreen: {fileID: 443430691}
   PanelWithControls: {fileID: 1371505833}
+  CharacterControls: {fileID: 884265329}
   MobileControls: {fileID: 2078412934}
   PCControls: {fileID: 623940664}
   counterText: {fileID: 383604369}

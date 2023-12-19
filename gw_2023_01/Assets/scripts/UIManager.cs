@@ -21,6 +21,8 @@ public class UIManager : MonoBehaviour
 
     public GameObject PanelWithControls;
 
+    [SerializeField] private GameObject CharacterControls;
+
     [SerializeField] private GameObject MobileControls;
     [SerializeField] private GameObject PCControls;
 
@@ -38,6 +40,18 @@ public class UIManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        //get safe area values
+        float SaveX = Screen.safeArea.x;
+        float SaveY = Screen.safeArea.y;
+
+        //set menu button to safe area
+        RectTransform NewMenuButtonXPos = MenuButton.GetComponent<RectTransform>();        
+        NewMenuButtonXPos.anchoredPosition = new Vector3(SaveX, 0, 0);
+
+        //set controls
+        RectTransform NewPlayerControls = CharacterControls.GetComponent<RectTransform>();
+        NewPlayerControls.offsetMin = new Vector2(SaveX, 0);
+        NewPlayerControls.offsetMax = new Vector2(-SaveY, 0);
 
         PlayBanner.SetActive(true);
         EndGameBanner.SetActive(false);

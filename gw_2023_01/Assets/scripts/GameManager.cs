@@ -1,8 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using Unity.VisualScripting;
-using UnityEditor;
 using UnityEngine;
 
 
@@ -39,13 +36,15 @@ public class GameManager : MonoBehaviour
     private int CurrentGameCycle; //currentGameCycle
 
     private int CycleLenght;
-    private int CycleQuarta = 25; //1/4 of cycle
+    private int CycleTenth = 10; //1/10 of cycle
 
     //initial Gameplay Ranges
     List<int> GameplayRanges = new List<int> ();
 
     List<float> GameASpeed = new List<float>();
     List<float> GameBSpeed = new List<float>();
+
+    private int PreviousValue;
 
     //Speed settings
     private float InitialASpeed = 1.0f, InitialBSpeed = 0.6f;
@@ -59,27 +58,17 @@ public class GameManager : MonoBehaviour
 
     private readonly List<int> objectsOrder = new List<int>(); //for random order
 
-    
     //for audio
     private AudioClip _clip;
     public static string ObjectSound1;
 
     void Start()
     {
-        //change camera for different aspect
-       float  ScreenAspect = (float)Screen.width / (float)Screen.height;
-
-        if (ScreenAspect < 1.5f)
-            Camera.main.orthographicSize = 8.0f;
-        else
-            Camera.main.orthographicSize = 6.0f;
-
-        //Set Framerate
-        Application.targetFrameRate = 15;
+         //Set Framerate
+        Application.targetFrameRate = 25;
         
         //set resoluton
         Screen.SetResolution(1920, 1080, true);
-
         Screen.SetResolution((int)Screen.width, (int)Screen.height, true);
         
         GameInit();
@@ -100,9 +89,9 @@ public class GameManager : MonoBehaviour
 
         UIManager.CounterTextValue = "0"; //start count
 
-        UIManager.GameTypeSelector = 0;
+        UIManager.GameTypeSelector = 0; //no game type selected
 
-        UIManager.ShowMissText = false;
+        UIManager.ShowMissText = false; //hide miss text
 
 
         HeroDirection = 2; // bottom right
@@ -114,31 +103,31 @@ public class GameManager : MonoBehaviour
         //when game is end
         GameEndValue = 6;
 
-        SetInitialRanges();
+        SetInitialRanges(); //game ranges
     }
 
     private void SetInitialRanges()
     {
-        GameplayRanges.Clear();
         //set Initial gameplay ranges
-        GameplayRanges.Insert(0, CycleQuarta);        
-        for (int i = 1; i < 4; i++)
-        {
-            GameplayRanges.Insert(i, GameplayRanges[0] * (i+1));
-        }
+        GameplayRanges.Clear();        
+        GameplayRanges.Insert(0, CycleTenth);
+        GameplayRanges.Insert(1, Convert.ToInt32(CycleTenth*3.3));
+        GameplayRanges.Insert(2, Convert.ToInt32(CycleTenth * 6.6));
+        GameplayRanges.Insert(3, CycleTenth*10);
+
 
         CycleLenght = GameplayRanges[3];
 
-        GameASpeed.Clear();
         //set speed A initial values
+        GameASpeed.Clear();        
         GameASpeed.Insert(0, InitialASpeed);
         for (int i = 1; i < 5; i++)
         {
             GameASpeed.Insert(i, GameASpeed[i - 1] - InitialASpeedStep);
         }
 
-        GameBSpeed.Clear();
         //set speed B initial values
+        GameBSpeed.Clear();        
         GameBSpeed.Insert(0, InitialBSpeed);
         for (int i = 1; i < 5; i++)
         {
@@ -147,7 +136,6 @@ public class GameManager : MonoBehaviour
 
         //zero game cycle
         CurrentGameCycle = 0;
-        
     }
 
 
@@ -165,17 +153,31 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    static int MyRandomizer()
+    {
+        int RandomNumber = UnityEngine.Random.Range((int)1, (int)5);
+
+        return RandomNumber;
+    }
+
 
     void RandomObjectRender()
     {
-        RandomObject = UnityEngine.Random.Range((int)1, (int)5);
+        
+        if (PreviousValue != RandomObject)
+        {
+            PreviousValue = RandomObject;
+        } else
+        {
+            RandomObject = MyRandomizer();
+        }
+
         objectForRender(RandomObject);
     }
 
 
     void GameLogic()
     {
-
         //intro simple gameplay
         if (TotalGameTime < 23 && CurrentGameCycle == 0)
         {
@@ -185,8 +187,8 @@ public class GameManager : MonoBehaviour
         //1 fish 4sec
         if (TotalGameTime > 23 | CurrentGameCycle > 0)
         {
-            //stage 1
-            if (GameScore >= 1 && GameScore <= GameplayRanges[0] && TotalGameTime % 4 == 0)
+            //stage 1  - 1 fish 5sec
+            if (GameScore >= 1 && GameScore <= GameplayRanges[0] && TotalGameTime % 5 == 0)
             {
                 if (UIManager.GameTypeSelector == 1)
                 {
@@ -200,8 +202,8 @@ public class GameManager : MonoBehaviour
                 RandomObjectRender();
             }
 
-            ////stage 2 - 1 fish 3sec
-            if (GameScore > GameplayRanges[0] && GameScore <= GameplayRanges[1] && TotalGameTime % 3 == 0)
+            ////stage 2 - 1 fish 4sec
+            if (GameScore > GameplayRanges[0] && GameScore <= GameplayRanges[1] && TotalGameTime % 4 == 0)
             {
                 if (UIManager.GameTypeSelector == 1)
                 {
@@ -215,8 +217,8 @@ public class GameManager : MonoBehaviour
                 RandomObjectRender();
             }
 
-            ////stage 3 - 1 fish 2sec
-            if (GameScore > GameplayRanges[1] && GameScore <= GameplayRanges[2] && TotalGameTime % 2 == 0)
+            ////stage 3 - 1 fish 3sec
+            if (GameScore > GameplayRanges[1] && GameScore <= GameplayRanges[2] && TotalGameTime % 3 == 0)
             {
                 if (UIManager.GameTypeSelector == 1)
                 {
@@ -230,7 +232,7 @@ public class GameManager : MonoBehaviour
                 RandomObjectRender();
             }
 
-            //stage 4
+            //stage 4 - 1 fish 2sec
             if (GameScore > GameplayRanges[2] && GameScore <= GameplayRanges[3] && TotalGameTime % 2 == 0)
             {
 
@@ -326,7 +328,6 @@ public class GameManager : MonoBehaviour
             if (ShowAddCharEndTime > TotalGameTime)
             {
                 ShowAddChar = true;
-                //Debug.Log("Render Add");
             } else
             {
                 ShowAddChar = false;
@@ -338,7 +339,9 @@ public class GameManager : MonoBehaviour
     
     void Update()
     {
- 
+
+        RandomObject = MyRandomizer();
+
         //show clock on IDLE state
         if (IdleState)
         {
@@ -370,8 +373,6 @@ public class GameManager : MonoBehaviour
             //Game Speed
             if (GameTime > GameSpeed) 
             {
-                MyDebug("Update");
-
                 GameCyclesLogic();
                 
                 GameLogic();
@@ -393,38 +394,36 @@ public class GameManager : MonoBehaviour
     void SoundLogic()
     {
         int ObjectsCount = 0;
-        string forsound = "";
+        string ObjectName = "";
 
         GameObject[] allObjects = GameObject.FindGameObjectsWithTag("fish");
         foreach (GameObject obj in allObjects)
         {
             ObjectsCount++;
-            forsound = obj.name;
+            ObjectName = obj.name;
         }
-
-        //Debug.Log(TotalGameTime + "/" + LooseState);
 
         if (ObjectsCount == 1 && !LooseState)
         {
-            if (forsound.Contains("obj_01"))
+            if (ObjectName.Contains("obj_01"))
             {
                 _clip = (AudioClip)Resources.Load(SoundManager.ObjectSounds[0]);
                 SoundManager.Instance.PlaySound(_clip);
             }
 
-            if (forsound.Contains("obj_02"))
+            if (ObjectName.Contains("obj_02"))
             {
                 _clip = (AudioClip)Resources.Load(SoundManager.ObjectSounds[1]);
                 SoundManager.Instance.PlaySound(_clip);
             }
 
-            if (forsound.Contains("obj_03"))
+            if (ObjectName.Contains("obj_03"))
             {
                 _clip = (AudioClip)Resources.Load(SoundManager.ObjectSounds[2]);
                 SoundManager.Instance.PlaySound(_clip);
             }
 
-            if (forsound.Contains("obj_04"))
+            if (ObjectName.Contains("obj_04"))
             {
                 _clip = (AudioClip)Resources.Load(SoundManager.ObjectSounds[3]);
                 SoundManager.Instance.PlaySound(_clip);
@@ -724,7 +723,8 @@ public class GameManager : MonoBehaviour
         Debug.Log(TMP);
 
         Debug.Log("Call from: " + CallPoint);
-        //Debug.Log("TotalGameTime" + TotalGameTime);
+        
+        Debug.Log("TotalGameTime" + TotalGameTime);
 
         Debug.Log("CycleLenght: " + CycleLenght);
         Debug.Log("CurrentGameCycle: " + CurrentGameCycle);
@@ -732,7 +732,7 @@ public class GameManager : MonoBehaviour
         Debug.Log("Game Score: " + GameScore);
         Debug.Log("Lost Score: " + LostScore);
 
-        Debug.Log("IdleState- " + IdleState + "/ GameState-" + GameState + "/ LooseState-" + LooseState + "/ PauseState-" + PauseState + "/ EndGameState-" + EndGameState + "/ ShowAddChar-" + ShowAddChar + "/ CatchState-" + CatchState);
+        Debug.Log("IdleState - " + IdleState + "/ GameState - " + GameState + "/ LooseState - " + LooseState + "/ PauseState - " + PauseState + "/ EndGameState - " + EndGameState + "/ ShowAddChar - " + ShowAddChar + "/ CatchState - " + CatchState);
 
         TMP = "";
 

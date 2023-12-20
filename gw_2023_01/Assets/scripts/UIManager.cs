@@ -21,6 +21,8 @@ public class UIManager : MonoBehaviour
 
     public GameObject PanelWithControls;
 
+    public bool Win;
+
     [SerializeField] private GameObject CharacterControls;
 
     [SerializeField] private GameObject MobileControls;
@@ -40,19 +42,6 @@ public class UIManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        //get safe area values
-        float SaveX = Screen.safeArea.x;
-        float SaveY = Screen.safeArea.y;
-
-        //set menu button to safe area
-        RectTransform NewMenuButtonXPos = MenuButton.GetComponent<RectTransform>();        
-        NewMenuButtonXPos.anchoredPosition = new Vector3(SaveX, 0, 0);
-
-        //set controls
-        RectTransform NewPlayerControls = CharacterControls.GetComponent<RectTransform>();
-        NewPlayerControls.offsetMin = new Vector2(SaveX, 0);
-        NewPlayerControls.offsetMax = new Vector2(-SaveY, 0);
-
         PlayBanner.SetActive(true);
         EndGameBanner.SetActive(false);
         SettingsScreen.SetActive(false);
@@ -64,6 +53,8 @@ public class UIManager : MonoBehaviour
 
             MobileControls.SetActive(false);
             PCControls.SetActive(true);
+
+            Win = true;
         }
         else
         {
@@ -80,12 +71,67 @@ public class UIManager : MonoBehaviour
             //resize back
             RectTransform NewSetPanelHeight = SettingsPanel.GetComponent<RectTransform>();
             NewSetPanelHeight.sizeDelta = new Vector2(600, 380);
+
+            Win = false;
+        }
+    }
+
+
+    void Orientation()
+    {
+        //get safe area values
+        float SaveX = Screen.safeArea.x;
+        float SaveY = Screen.safeArea.y;
+
+        //set menu button to safe area
+        RectTransform NewMenuButtonXPos = MenuButton.GetComponent<RectTransform>();
+
+        //set controls
+        RectTransform NewPlayerControls = CharacterControls.GetComponent<RectTransform>();
+
+        //get screen aspect
+        float ScreenAspect = (float)Screen.width / (float)Screen.height;
+
+        if (Screen.orientation == ScreenOrientation.Portrait | Screen.orientation == ScreenOrientation.PortraitUpsideDown && !Win)
+        {
+            if (ScreenAspect < 1.5f)
+                Camera.main.orthographicSize = 19.0f; //square
+            else
+                Camera.main.orthographicSize = 16.0f; //16:9
+
+            //ipad
+            if (ScreenAspect >= 0.69 && ScreenAspect <= 0.75f)
+                Camera.main.orthographicSize = 13.0f; //16:9
+
+            NewMenuButtonXPos.anchoredPosition = new Vector3(0, -SaveY, 0);
+
+            NewPlayerControls.offsetMin = new Vector2(0, SaveY);
+            NewPlayerControls.offsetMax = new Vector2(0, 0);
+        }
+        else
+        {
+            if (ScreenAspect < 1.5f)
+                Camera.main.orthographicSize = 8.0f; //square
+            else
+                Camera.main.orthographicSize = 6.0f; //16:9
+
+            //ipad
+            if (ScreenAspect == 0.75f)
+                Camera.main.orthographicSize = 12.0f; //16:9
+
+            NewMenuButtonXPos.anchoredPosition = new Vector3(SaveX, 0, 0);
+
+            NewPlayerControls.offsetMin = new Vector2(SaveX, 0);
+            NewPlayerControls.offsetMax = new Vector2(-SaveY, 0);
         }
     }
 
     // Update is called once per frame
     void Update()
     {
+
+        Orientation();
+
         // clock, counter value
         counterText.text = CounterTextValue;
 

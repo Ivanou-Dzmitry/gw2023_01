@@ -11,12 +11,6 @@ public class GamePreferencesManager : MonoBehaviour
     private const string VolumeLevel = "Volume";
     private const string SoundToggle = "Sound_Toggle";
 
-    private const string Button01 = "Button_01";
-    private const string Button02 = "Button_02";
-    private const string Button03 = "Button_03";
-    private const string Button04 = "Button_04";
-
-
     // Start is called before the first frame update
     void Start()
     {

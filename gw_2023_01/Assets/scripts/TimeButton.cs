@@ -14,8 +14,12 @@ public class TimeButton : MonoBehaviour
 
     private void OnMouseDown()
     {
-        if (!GameManager.GameState) { SM.ButtonClick(); }
+        //sound
+        if (!GameManager.GameState)
+            SM.ButtonClick();
+
         GM.idleState();
+        
         spriteRenderer.sprite = mouseClicked;
     }
 

@@ -25,9 +25,10 @@ public class GameManager : MonoBehaviour
     public static int LostScore;
 
     public static int TotalGameTime;
+    private float GameTime;
+
     public static int HeroDirection; //player direction
 
-    private float GameTime;
     public static float GameSpeed = 1;
     private float LooseSpeed = 1;
     private float CurrentSpeed;
@@ -52,7 +53,7 @@ public class GameManager : MonoBehaviour
 
     private float SpeedStep = 0.025f;
 
-    private bool wasExecuted = false;
+    private bool LoopWasExecuted = false;
 
     private readonly int GameObjectsCount = 4; //game objects in current game
 
@@ -147,16 +148,15 @@ public class GameManager : MonoBehaviour
         {
             do
             {
-                number = UnityEngine.Random.Range((int)1, (int)5);
+                number = MyRandomizer(1, 5);
             } while (objectsOrder.Contains(number));
             objectsOrder.Add(number);
         }
     }
 
-    static int MyRandomizer()
+    static int MyRandomizer(int FirstNum, int LastNum)
     {
-        int RandomNumber = UnityEngine.Random.Range((int)1, (int)5);
-
+        int RandomNumber = UnityEngine.Random.Range((int)FirstNum, (int)LastNum);       
         return RandomNumber;
     }
 
@@ -169,7 +169,7 @@ public class GameManager : MonoBehaviour
             PreviousValue = RandomObject;
         } else
         {
-            RandomObject = MyRandomizer();
+            RandomObject = MyRandomizer(1, 5);
         }
 
         objectForRender(RandomObject);
@@ -248,11 +248,9 @@ public class GameManager : MonoBehaviour
                 RandomObjectRender();
 
                 //reset status for loop
-                wasExecuted = false;
+                LoopWasExecuted = false;
             }
         }
-
-
     }
 
     void IntroGameplay()
@@ -287,7 +285,6 @@ public class GameManager : MonoBehaviour
 
         if (!LooseState && !PauseState)
         {
-
             switch (Object)
             {
                 case 1:
@@ -340,7 +337,7 @@ public class GameManager : MonoBehaviour
     void Update()
     {
 
-        RandomObject = MyRandomizer();
+        RandomObject = MyRandomizer(1, 5);
 
         //show clock on IDLE state
         if (IdleState)
@@ -454,22 +451,29 @@ public class GameManager : MonoBehaviour
 
         GameTime = GameTime + Time.unscaledDeltaTime;
 
-        ScoreCounter();
+        RandomObject = MyRandomizer(1, 5);
 
         //99 for idle cycle
-        if (GameScore == 99)
+        if (TotalGameTime == 100)
         {
-            GameScore = 0;
+            TotalGameTime = 0;
         }
 
         if (GameTime > GameSpeed)
         {
+            //random hero direction
             int CurrentHeroDirection = HeroDirection;
-            HeroDirection = UnityEngine.Random.Range(0, 4);
+            HeroDirection = MyRandomizer(0, 4);
 
-            if (CurrentHeroDirection != HeroDirection) { HC.hideObect();}
-
-            GameLogic();
+            //move hero
+            if (CurrentHeroDirection != HeroDirection)
+                    HC.hideObect();
+            
+            //fish generator
+            if (TotalGameTime % 3 == 0)
+            {
+                objectForRender(RandomObject);
+            }                
 
             TotalGameTime++;
 
@@ -530,7 +534,7 @@ public class GameManager : MonoBehaviour
 
     private void GameCyclesLogic()
     {
-        if (!wasExecuted)
+        if (!LoopWasExecuted)
         {
             //game cycles 100, 200, 300 etc
             if (GameScore > 0 && GameScore % CycleLenght == 0)
@@ -559,7 +563,7 @@ public class GameManager : MonoBehaviour
                 }
             }
 
-            wasExecuted = true;
+            LoopWasExecuted = true;
         }
 
         //game loop

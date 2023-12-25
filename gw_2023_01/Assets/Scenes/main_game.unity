@@ -3329,6 +3329,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 146154329}
     - target: {fileID: 2968469576392070431, guid: 1199cafcf2fb6e34795828a9b4b21cf4, type: 3}
+      propertyPath: SM
+      value: 
+      objectReference: {fileID: 1420748842}
+    - target: {fileID: 2968469576392070431, guid: 1199cafcf2fb6e34795828a9b4b21cf4, type: 3}
       propertyPath: ButtonN
       value: 2
       objectReference: {fileID: 0}
@@ -3582,6 +3586,7 @@ MonoBehaviour:
   SettingsPanel: {fileID: 1682255631}
   SettingsScreen: {fileID: 443430691}
   PanelWithControls: {fileID: 1371505833}
+  Win: 0
   CharacterControls: {fileID: 884265329}
   MobileControls: {fileID: 2078412934}
   PCControls: {fileID: 623940664}
@@ -5462,6 +5467,10 @@ PrefabInstance:
       propertyPath: HC
       value: 
       objectReference: {fileID: 146154329}
+    - target: {fileID: 2968469576392070431, guid: 1199cafcf2fb6e34795828a9b4b21cf4, type: 3}
+      propertyPath: SM
+      value: 
+      objectReference: {fileID: 1420748842}
     - target: {fileID: 2968469576392070431, guid: 1199cafcf2fb6e34795828a9b4b21cf4, type: 3}
       propertyPath: ButtonN
       value: 1
@@ -9072,7 +9081,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Content: {fileID: 1747067045}
-  m_Horizontal: 0
+  m_Horizontal: 1
   m_Vertical: 1
   m_MovementType: 1
   m_Elasticity: 0.1
@@ -9145,6 +9154,10 @@ PrefabInstance:
       propertyPath: HC
       value: 
       objectReference: {fileID: 146154329}
+    - target: {fileID: 2968469576392070431, guid: 1199cafcf2fb6e34795828a9b4b21cf4, type: 3}
+      propertyPath: SM
+      value: 
+      objectReference: {fileID: 1420748842}
     - target: {fileID: 2968469576392070431, guid: 1199cafcf2fb6e34795828a9b4b21cf4, type: 3}
       propertyPath: ButtonN
       value: 3
@@ -9536,6 +9549,10 @@ PrefabInstance:
       propertyPath: HC
       value: 
       objectReference: {fileID: 146154329}
+    - target: {fileID: 2968469576392070431, guid: 1199cafcf2fb6e34795828a9b4b21cf4, type: 3}
+      propertyPath: SM
+      value: 
+      objectReference: {fileID: 1420748842}
     - target: {fileID: 2968469576392070431, guid: 1199cafcf2fb6e34795828a9b4b21cf4, type: 3}
       propertyPath: ButtonN
       value: 0

@@ -39,7 +39,6 @@ public class AddCharController : MonoBehaviour
 
     void objectRender()
     {
-        //Debug.Log("GT: " + GameManager.TotalGameTime +" / GS:" + GameManager.GameState);
 
         HideObj();
 

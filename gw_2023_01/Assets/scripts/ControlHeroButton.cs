@@ -5,6 +5,7 @@ public class ControlHeroButton : MonoBehaviour
 {
     //GameManager GM;
     public SpriteRenderer spriteRenderer;
+    public SoundManager SM;
 
     [SerializeField] private int ButtonDirection;
 
@@ -14,6 +15,9 @@ public class ControlHeroButton : MonoBehaviour
     public void OnMouseDown()
     {
         spriteRenderer.sprite = mouseClicked;
+
+        if (!GameManager.GameState)
+            SM.ButtonClick();
 
         if (GameManager.GameState)
         {

@@ -15,7 +15,9 @@ public class GameAButton : MonoBehaviour
 
     private void OnMouseDown()
     {
-        if (!GameManager.GameState) { SM.ButtonClick(); }
+        //sound
+        if (!GameManager.GameState)
+            SM.ButtonClick();
         
         GM.gameA();
         spriteRenderer.sprite = mouseClicked;
